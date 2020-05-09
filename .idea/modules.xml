@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/batch_layer/batch_layer.iml" filepath="$PROJECT_DIR$/batch_layer/batch_layer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/data_collector/data_collector.iml" filepath="$PROJECT_DIR$/data_collector/data_collector.iml" />
+      <module fileurl="file://$PROJECT_DIR$/facilities/facilities.iml" filepath="$PROJECT_DIR$/facilities/facilities.iml" />
+      <module fileurl="file://$PROJECT_DIR$/serving_layer/serving_layer.iml" filepath="$PROJECT_DIR$/serving_layer/serving_layer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/speed_layer/speed_layer.iml" filepath="$PROJECT_DIR$/speed_layer/speed_layer.iml" />
+    </modules>
+  </component>
+</project>
