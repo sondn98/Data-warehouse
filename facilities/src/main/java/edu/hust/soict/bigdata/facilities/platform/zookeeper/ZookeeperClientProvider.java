@@ -1,7 +1,7 @@
 package edu.hust.soict.bigdata.facilities.platform.zookeeper;
 
 import edu.hust.soict.bigdata.facilities.common.config.Properties;
-import edu.hust.soict.bigdata.facilities.common.util.ObjectPool;
+import edu.hust.soict.bigdata.facilities.structures.ObjectPool;
 
 import java.io.IOException;
 

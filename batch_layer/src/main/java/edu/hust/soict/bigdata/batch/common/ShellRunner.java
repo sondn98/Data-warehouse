@@ -11,13 +11,16 @@ import java.io.IOException;
 public class ShellRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(ShellRunner.class);
+
     public static int run(String script){
+        logger.info("Running script: " + script);
         CommandLine cmd = new CommandLine(script);
         Executor executor = new DefaultExecutor();
 
         try {
             return executor.execute(cmd);
         } catch (IOException e) {
+            logger.error("Fail to run shell script", e);
             throw new RuntimeException(e);
         }
     }

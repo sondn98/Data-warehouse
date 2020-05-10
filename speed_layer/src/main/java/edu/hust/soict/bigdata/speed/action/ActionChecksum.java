@@ -1,4 +1,4 @@
-package edu.hust.soict.bigdata.serving.action;
+package edu.hust.soict.bigdata.speed.action;
 
 import edu.hust.soict.bigdata.facilities.common.config.Properties;
 import edu.hust.soict.bigdata.facilities.model.DataModel;

@@ -1,6 +1,7 @@
-package edu.hust.soict.bigdata.facilities.common.util;
+package edu.hust.soict.bigdata.facilities.structures;
 
 import edu.hust.soict.bigdata.facilities.common.config.Properties;
+import edu.hust.soict.bigdata.facilities.common.util.Reflects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

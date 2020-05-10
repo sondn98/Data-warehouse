@@ -44,6 +44,11 @@ public class Const {
     public static final String HIVE_SCHEMA = "HIVE_SCHEMA";
     public static final String HIVE_REPOSITORY_CLASS = "HIVE_REPOSITORY_CLASS";
 
+    // 7. ELASTICSEARCH
+    public static final String ELASTIC_HOST = "ELASTIC_HOST";
+    public static final String ELASTIC_CLUSTER_NAME = "ELASTIC_CLUSTER_NAME";
+    public static final String ELASTIC_KAFKA_TOPIC_ON_FAILURE = "ELASTIC_KAFKA_TOPIC_ON_FAILURE";
+
     //
     //                                COMPONENTS
     //
@@ -53,18 +58,6 @@ public class Const {
     public static final String WAL_WRITER_CODEC = "WAL_WRITER_CODEC";
     public static final String WAL_EXPIRATION_TIME = "WAL_EXPIRATION_TIME";
     public static final String LOCAL_FS_WAL_FOLDER = "LOCAL_FS_WAL_FOLDER";
-
-    // 2. ACTION WRITE
-    public static final String ACTION_WRITE_EXECUTOR_POOL_SIZE = "ACTION_WRITE_EXECUTOR_POOL_SIZE";
-    public static final String ACTION_WRITE_WAL_TIMEOUT = "ACTION_WRITE_WAL_TIMEOUT";
-    public static final String ACTION_WRITE_WAL_ACTIVE = "ACTION_WRITE_WAL_ACTIVE";
-    public static final String ACTION_WRITE_KAFKA_TIMEOUT = "ACTION_WRITE_KAFKA_TIMEOUT";
-    public static final String ACTION_WRITE_KAFKA_ACTIVE = "ACTION_WRITE_KAFKA_ACTIVE";
-
-    // 2. RESTFUL
-    public static final String LISTENER_SERVER_ADDRESS = "LISTENER_SERVER_ADDRESS";
-    public static final String LISTENER_SERVER_PORT = "LISTENER_SERVER_PORT";
-    public static final String LISTENER_SERVER_API_CLASSES = "LISTENER_SERVER_API_CLASSES";
 
     //
     //                               APPLICATIONS

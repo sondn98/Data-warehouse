@@ -1,4 +1,4 @@
-package edu.hust.soict.bigdata.serving.justification;
+package edu.hust.soict.bigdata.speed.justification;
 
 import edu.hust.soict.bigdata.facilities.common.config.Properties;
 import org.slf4j.Logger;

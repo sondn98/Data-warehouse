@@ -1,5 +1,6 @@
 package edu.hust.soict.bigdata.collector.action.executors;
 
+import edu.hust.soict.bigdata.facilities.common.exceptions.WalException;
 import edu.hust.soict.bigdata.facilities.common.wal.WalFactory;
 import edu.hust.soict.bigdata.facilities.common.wal.WalFile;
 import edu.hust.soict.bigdata.facilities.common.wal.WalWriter;
@@ -26,8 +27,7 @@ public class WalWriterExecutor<M extends DataModel> implements Runnable {
         try (WalWriter<M> writer = WalFactory.getWriter(wal)){
             writer.append(data);
         } catch (IOException e) {
-//            logger.error(new WalException(e).getMessage());
-            e.printStackTrace();
+            logger.error("Error while write data to wal", new WalException(e));
         }
     }
 }

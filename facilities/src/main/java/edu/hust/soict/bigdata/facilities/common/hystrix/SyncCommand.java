@@ -12,7 +12,8 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.Callable;
 
 /**
- * @author: kumin on 05/04/2019
+ * @author sondn
+ * @since 1/4/2020
  **/
 
 public class SyncCommand<T> extends HystrixCommand<T> {

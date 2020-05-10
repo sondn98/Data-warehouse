@@ -1,6 +1,6 @@
 package edu.hust.soict.bigdata.collector.worker;
 
-import edu.hust.soict.bigdata.facilities.common.config.Const;
+import edu.hust.soict.bigdata.collector.common.CollectorConst;
 import edu.hust.soict.bigdata.facilities.common.config.Properties;
 import edu.hust.soict.bigdata.facilities.common.hystrix.monitor.MetricsServer;
 import edu.hust.soict.bigdata.facilities.common.util.Reflects;
@@ -21,12 +21,12 @@ public class ScrapingListener {
 
     public static void start(Properties props) throws Exception {
         System.setProperty("es.set.netty.runtime.available.processors", "false");
-        String port = props.getProperty(Const.LISTENER_SERVER_PORT, "6969");
-        final String serverAddress = props.getProperty(Const.LISTENER_SERVER_ADDRESS, "localhost");
+        String port = props.getProperty(CollectorConst.LISTENER_SERVER_PORT, "6969");
+        final String serverAddress = props.getProperty(CollectorConst.LISTENER_SERVER_ADDRESS, "localhost");
         final String url = "http://" + serverAddress + ":" + port;
         URI uri = URI.create(url);
 
-        Class[] apis = Reflects.getClass(props.getCollection(Const.LISTENER_SERVER_API_CLASSES));
+        Class[] apis = Reflects.getClass(props.getCollection(CollectorConst.LISTENER_SERVER_API_CLASSES));
         ResourceConfig resourceConfig = new ResourceConfig(apis);
 
         logger.info("Jersey on Jetty container started. Try out " + url);
@@ -54,7 +54,8 @@ public class ScrapingListener {
     }
 
     public static void main(String[] args) throws Exception {
-        Properties props = new Properties();
+        Properties props = new Properties()
+                .addResource("collector.properties");
         logger.info(props.toString());
 
         start(props);

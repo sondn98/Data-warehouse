@@ -3,6 +3,7 @@ package edu.hust.soict.bigdata.facilities.platform.elasticsearch;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.hust.soict.bigdata.facilities.common.config.Const;
 import edu.hust.soict.bigdata.facilities.common.config.Properties;
 import edu.hust.soict.bigdata.facilities.model.DataModel;
 import edu.hust.soict.bigdata.facilities.platform.kafka.KafkaBrokerWriter;
@@ -41,7 +42,7 @@ public abstract class ESRepository<M extends DataModel> implements AutoCloseable
     public ESRepository(Properties props, String clientName){
         esClient = ElasticClientProvider.getOrCreate(clientName, new ElasticConfig(props));
         this.writer = new KafkaBrokerWriter(props);
-        this.topicOnFailure = props.getProperty("");
+        this.topicOnFailure = props.getProperty(Const.ELASTIC_KAFKA_TOPIC_ON_FAILURE);
         this.props = props;
     }
 

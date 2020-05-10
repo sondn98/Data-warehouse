@@ -1,4 +1,4 @@
-package edu.hust.soict.bigdata.serving.action;
+package edu.hust.soict.bigdata.speed.action;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,7 +7,7 @@ import edu.hust.soict.bigdata.facilities.model.DataModel;
 import edu.hust.soict.bigdata.facilities.model.Record;
 import edu.hust.soict.bigdata.facilities.model.Records;
 import edu.hust.soict.bigdata.facilities.platform.kafka.KafkaBrokerReader;
-import edu.hust.soict.bigdata.serving.justification.Justification;
+import edu.hust.soict.bigdata.speed.justification.Justification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

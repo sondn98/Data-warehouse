@@ -3,7 +3,8 @@ package edu.hust.soict.bigdata.facilities.common.util;
 import java.util.Locale;
 
 /**
- * @author: kumin on 14/01/2019
+ * @author sondn
+ * @since 1/4/2020
  **/
 
 public class Strings {
