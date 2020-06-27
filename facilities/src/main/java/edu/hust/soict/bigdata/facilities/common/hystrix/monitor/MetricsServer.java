@@ -21,9 +21,9 @@ public class MetricsServer {
 
     private Server server;
 
-    public MetricsServer(Properties props) {
-        this.host = props.getProperty(Const.HYSTRIX_METRICS_SERVER_HOST, "localhost");
-        this.port = props.getIntProperty(Const.HYSTRIX_METRICS_SERVER_PORT, 7998);
+    public MetricsServer() {
+        this.host = Properties.getProperty(Const.HYSTRIX_METRICS_SERVER_HOST, "localhost");
+        this.port = Properties.getIntProperty(Const.HYSTRIX_METRICS_SERVER_PORT, 7998);
     }
 
     public void start() {

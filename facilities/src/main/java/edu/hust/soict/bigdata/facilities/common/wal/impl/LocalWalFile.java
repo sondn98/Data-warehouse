@@ -1,6 +1,7 @@
 package edu.hust.soict.bigdata.facilities.common.wal.impl;
 
 import edu.hust.soict.bigdata.facilities.common.wal.WalFile;
+import edu.hust.soict.bigdata.facilities.model.WalInfo;
 
 import java.io.File;
 
@@ -25,6 +26,7 @@ public class LocalWalFile implements WalFile {
     public LocalWalFile(String path, String codec, long maxSizeInBytes) {
         this.file = new File(path);
 
+        this.info = new WalInfo();
         this.info.filePath = path;
         this.info.codec = codec;
         this.info.maxSize = maxSizeInBytes;

@@ -6,6 +6,7 @@ import edu.hust.soict.bigdata.facilities.common.wal.impl.object.ObjectReader;
 import edu.hust.soict.bigdata.facilities.common.wal.impl.object.ObjectWriter;
 import edu.hust.soict.bigdata.facilities.common.wal.types.IdGenerator;
 import edu.hust.soict.bigdata.facilities.common.wal.types.SequenceIdGenerator;
+import edu.hust.soict.bigdata.facilities.model.WalInfo;
 
 import java.io.IOException;
 
@@ -68,15 +69,6 @@ public interface WalFile {
      */
     static String newFileName() {
         return "wal-" + ID_GENERATOR.generate() + ".log";
-    }
-
-    class WalInfo{
-
-        public String filePath;
-
-        public String codec;
-
-        public long maxSize;
     }
 
 }

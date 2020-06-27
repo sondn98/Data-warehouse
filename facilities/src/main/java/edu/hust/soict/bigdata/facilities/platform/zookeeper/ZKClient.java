@@ -18,9 +18,9 @@ public class ZKClient implements AutoCloseable{
     private ZooKeeper zookeeper;
     private static final Logger logger = LoggerFactory.getLogger(ZKClient.class);
 
-    public ZKClient(Properties props) throws IOException {
-        String host = props.getProperty(Const.ZK_HOST, "localhost");
-        int sessionTimeout = props.getIntProperty(Const.ZK_CLIENT_SESSION_TIMEOUT, 2000);
+    public ZKClient() throws IOException {
+        String host = Properties.getProperty(Const.ZK_HOST, "localhost");
+        int sessionTimeout = Properties.getIntProperty(Const.ZK_CLIENT_SESSION_TIMEOUT, 2000);
         zookeeper = new ZooKeeper(host, sessionTimeout, watchedEvent -> {
             // ignored
         });

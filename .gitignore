@@ -18,4 +18,7 @@ speed_layer/.idea
 speed_layer/*.iml
 speed_layer/target
 
+webUI/node_modules
+webUI/.idea
+
 .idea

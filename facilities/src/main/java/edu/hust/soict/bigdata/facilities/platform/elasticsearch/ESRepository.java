@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 public abstract class ESRepository<M extends DataModel> implements AutoCloseable{
 
     private RestHighLevelClient esClient;
-    private Properties props;
     private KafkaBrokerWriter writer;
 
     private String topicOnFailure;
@@ -39,11 +38,10 @@ public abstract class ESRepository<M extends DataModel> implements AutoCloseable
     private static final ObjectMapper om = new ObjectMapper();
     private static final Logger logger = LoggerFactory.getLogger(ESRepository.class);
 
-    public ESRepository(Properties props, String clientName){
-        esClient = ElasticClientProvider.getOrCreate(clientName, new ElasticConfig(props));
-        this.writer = new KafkaBrokerWriter(props);
-        this.topicOnFailure = props.getProperty(Const.ELASTIC_KAFKA_TOPIC_ON_FAILURE);
-        this.props = props;
+    public ESRepository(String clientName){
+        esClient = ElasticClientProvider.getOrCreate(clientName, RestHighLevelClient.class);
+        this.writer = new KafkaBrokerWriter();
+        this.topicOnFailure = Properties.getProperty(Const.ELASTIC_KAFKA_TOPIC_ON_FAILURE);
     }
 
     public void add(M data, String index) throws JsonProcessingException {
@@ -85,14 +83,14 @@ public abstract class ESRepository<M extends DataModel> implements AutoCloseable
             public void onResponse(BulkResponse bulkItemResponses) {
                 for(BulkItemResponse bulkItemResponse : bulkItemResponses){
                     if(bulkItemResponse.isFailed()){
-
+                        logger.warn(bulkItemResponse.getFailureMessage());
                     }
                 }
                 List<String> responses = new LinkedList<>();
                 bulkItemResponses.iterator().forEachRemaining(m -> responses.add(m.getId()));
 
                 List<M> fails = bulkData.stream().filter(m -> responses.contains(m.getId())).collect(Collectors.toList());
-                for(M data : bulkData){
+                for(M data : fails){
                     pushOnFailure(data);
                 }
 

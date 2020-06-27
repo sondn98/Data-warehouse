@@ -19,19 +19,19 @@ public class ScrapingListener {
 
     private static final Logger logger = LoggerFactory.getLogger(ScrapingListener.class);
 
-    public static void start(Properties props) throws Exception {
+    public static void start() throws Exception {
         System.setProperty("es.set.netty.runtime.available.processors", "false");
-        String port = props.getProperty(CollectorConst.LISTENER_SERVER_PORT, "6969");
-        final String serverAddress = props.getProperty(CollectorConst.LISTENER_SERVER_ADDRESS, "localhost");
+        String port = Properties.getProperty(CollectorConst.LISTENER_SERVER_PORT, "6969");
+        final String serverAddress = Properties.getProperty(CollectorConst.LISTENER_SERVER_ADDRESS, "localhost");
         final String url = "http://" + serverAddress + ":" + port;
         URI uri = URI.create(url);
 
-        Class[] apis = Reflects.getClass(props.getCollection(CollectorConst.LISTENER_SERVER_API_CLASSES));
+        Class[] apis = Reflects.getClass(Properties.getCollection(CollectorConst.LISTENER_SERVER_API_CLASSES));
         ResourceConfig resourceConfig = new ResourceConfig(apis);
 
         logger.info("Jersey on Jetty container started. Try out " + url);
 
-        MetricsServer metricsServer = new MetricsServer(props);
+        MetricsServer metricsServer = new MetricsServer();
         metricsServer.start();
 
         Server server = JettyHttpContainerFactory.createServer(uri, resourceConfig, false);
@@ -54,11 +54,10 @@ public class ScrapingListener {
     }
 
     public static void main(String[] args) throws Exception {
-        Properties props = new Properties()
-                .addResource("collector.properties");
-        logger.info(props.toString());
+        Properties.addResource("collector.properties");
+        logger.info(Properties.toStr());
 
-        start(props);
+        start();
         logger.info("Server is running ...");
     }
 }

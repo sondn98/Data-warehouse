@@ -13,13 +13,11 @@ import java.util.stream.Collectors;
 public class CSVWalHandler<M extends DataModel> implements Handler<M> {
 
     private WalFile wal;
-    private Properties props;
 
     private static final Logger logger = LoggerFactory.getLogger(CSVWalHandler.class);
 
-    public CSVWalHandler(Properties props, WalFile wal){
+    public CSVWalHandler(WalFile wal){
         this.wal = wal;
-        this.props = props;
     }
 
     @Override
@@ -28,15 +26,15 @@ public class CSVWalHandler<M extends DataModel> implements Handler<M> {
         logger.warn("Make sure that hive table was stored by org.apache.hadoop.hive.hbase.HBaseStorageHandler for preventing data losing");
         logger.info("Submitting file...");
 
-        String hbaseHome = props.getProperty(Const.SYSTEM_FACILITIES_HBASE_HOME);
+        String hbaseHome = Properties.getProperty(Const.SYSTEM_FACILITIES_HBASE_HOME);
         String importTool = "org.apache.hadoop.hbase.mapreduce.ImportTsv";
         String delimiter = "-Dimporttsv.separator=\",\"";
 
-        String columnFalimy = props.getProperty(Const.HBASE_COLUMN_FAMILY);
-        String qulifiers = "HBASE_ROW_KEY," + props.getCollection(Const.HBASE_QUALIFIERS).stream().map(m -> columnFalimy + ":" + m).collect(Collectors.joining(","));
+        String columnFalimy = Properties.getProperty(Const.HBASE_COLUMN_FAMILY);
+        String qulifiers = "HBASE_ROW_KEY," + Properties.getCollection(Const.HBASE_QUALIFIERS).stream().map(m -> columnFalimy + ":" + m).collect(Collectors.joining(","));
         String columnMapper = "-Dimporttsv.columns=" + qulifiers;
 
-        String table = props.getProperty(Const.HBASE_TABLE);
+        String table = Properties.getProperty(Const.HBASE_TABLE);
         String filePath = wal.absolutePath();
 
         String script = String.join(" ",

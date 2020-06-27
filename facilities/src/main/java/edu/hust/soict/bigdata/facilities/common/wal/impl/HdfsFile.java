@@ -1,6 +1,7 @@
 package edu.hust.soict.bigdata.facilities.common.wal.impl;
 
 import edu.hust.soict.bigdata.facilities.common.wal.WalFile;
+import edu.hust.soict.bigdata.facilities.model.WalInfo;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 

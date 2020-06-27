@@ -19,8 +19,8 @@ public class HdfsWriter {
 
     private static final Logger logger = LoggerFactory.getLogger(HdfsWriter.class);
 
-    public HdfsWriter(Properties props) throws IOException {
-        fs = FileSystem.get(URI.create(props.getProperty(Const.HADOOP_FS_URI, DEFAULT_FS)), new Configuration());
+    public HdfsWriter() throws IOException {
+        fs = FileSystem.get(URI.create(Properties.getProperty(Const.HADOOP_FS_URI, DEFAULT_FS)), new Configuration());
         logger.info("Created FileSystem on hdfs: " + fs.getUri().toString());
     }
 

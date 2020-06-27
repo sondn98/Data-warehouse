@@ -6,14 +6,13 @@ import edu.hust.soict.bigdata.batch.handler.Handler;
 import edu.hust.soict.bigdata.facilities.common.config.Const;
 import edu.hust.soict.bigdata.facilities.common.config.Properties;
 import edu.hust.soict.bigdata.facilities.model.DataModel;
+import edu.hust.soict.bigdata.facilities.model.WalInfo;
 import edu.hust.soict.bigdata.facilities.platform.hadoop.HdfsReader;
 import edu.hust.soict.bigdata.facilities.platform.zookeeper.ZKClient;
 import edu.hust.soict.bigdata.facilities.platform.zookeeper.ZookeeperClientProvider;
 import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static edu.hust.soict.bigdata.facilities.common.wal.WalFile.WalInfo;
 
 import java.io.IOException;
 import java.util.concurrent.*;
@@ -25,30 +24,28 @@ public class BatchProcessingThread<M extends DataModel> implements Runnable{
     private static HdfsReader reader;
     private static Long handleInterval;
     private static Long bulkloadTimeout;
-    private Properties props;
 
     private AtomicBoolean running;
 
     private static final ObjectMapper om = new ObjectMapper();
     private static final Logger logger = LoggerFactory.getLogger(BatchProcessingThread.class);
 
-    public BatchProcessingThread(Properties props) throws IOException {
+    public BatchProcessingThread() throws IOException {
         if(service == null)
-            service = Executors.newFixedThreadPool(props.getIntProperty(BatchConst.PROCESSING_THREAD_COUNT, 10));
+            service = Executors.newFixedThreadPool(Properties.getIntProperty(BatchConst.PROCESSING_THREAD_COUNT, 10));
         if(reader == null)
-            reader = new HdfsReader(props);
+            reader = new HdfsReader();
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
-        bulkloadTimeout = props.getLongProperty(BatchConst.PROCESSING_THREAD_BULKLOAD_TIMEOUT, 600000);
+        bulkloadTimeout = Properties.getLongProperty(BatchConst.PROCESSING_THREAD_BULKLOAD_TIMEOUT, 600000);
         running = new AtomicBoolean(true);
-        handleInterval = props.getLongProperty(BatchConst.PROCESSING_THREAD_INTERVAL, 100);
-        this.props = props;
+        handleInterval = Properties.getLongProperty(BatchConst.PROCESSING_THREAD_INTERVAL, 100);
     }
 
     private void handle(){
         try{
-            ZKClient zkClient = ZookeeperClientProvider.getOrCreate(props.getProperty(Const.ZK_CLIENT_NAME), ZKClient.class, props);
-            String zNodeParent = props.getProperty(Const.ZK_INFO_HDFS_NEW_FILE_ZNODE);
+            ZKClient zkClient = ZookeeperClientProvider.getOrCreate(Properties.getProperty(Const.ZK_CLIENT_NAME), ZKClient.class);
+            String zNodeParent = Properties.getProperty(Const.ZK_INFO_HDFS_NEW_FILE_ZNODE);
             String data = zkClient.getDataAndDelete(zNodeParent);
             if(data == null)
                 return;
@@ -57,11 +54,7 @@ public class BatchProcessingThread<M extends DataModel> implements Runnable{
             logger.info("Processing file: " + keeper.filePath);
             Future<?> fut = service.submit(() -> {
                 Handler<M> handler;
-                try {
-                    handler = HandlerFactory.getHandler(props, keeper);
-                } catch (IOException e) {
-                    throw new RuntimeException("Can not get handler. Check for file information keeper " + keeper.toString());
-                }
+                handler = HandlerFactory.getHandler(keeper);
                 handler.handle();
             });
             try {
@@ -72,7 +65,7 @@ public class BatchProcessingThread<M extends DataModel> implements Runnable{
                 logger.error("---> File " + data + " failed to processed. Trying to create znode for next processing");
                 String[] path = keeper.filePath.split("/");
                 String fileName = path[path.length - 1];
-                zkClient.create(props.getProperty(Const.ZK_INFO_HDFS_NEW_FILE_ZNODE) + "/" + fileName, data);
+                zkClient.create(Properties.getProperty(Const.ZK_INFO_HDFS_NEW_FILE_ZNODE) + "/" + fileName, data);
                 logger.info("Created znode for next processing");
             } catch (TimeoutException e) {
                 e.printStackTrace();

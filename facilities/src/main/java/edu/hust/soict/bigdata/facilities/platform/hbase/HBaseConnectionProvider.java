@@ -1,6 +1,11 @@
 package edu.hust.soict.bigdata.facilities.platform.hbase;
 
+import edu.hust.soict.bigdata.facilities.common.config.Const;
+import edu.hust.soict.bigdata.facilities.common.config.Properties;
+import edu.hust.soict.bigdata.facilities.structures.ObjectPool;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 
@@ -9,24 +14,16 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * TODO: Class description here.
- *
- * @author <a href="https://github.com/tjeubaoit">tjeubaoit</a>
+ * @author sondn
+ * @since 2020/06/25
  */
-public class HBaseConnectionProvider {
+public class HBaseConnectionProvider extends ObjectPool<Connection> {
 
-    private static Map<String, Connection> clients = new TreeMap<>();
-
-    public static Connection getDefault(Configuration conf) {
-        return getOrCreate("default", conf);
-    }
-
-    public static synchronized Connection getOrCreate(String name, Configuration conf) {
-        return clients.computeIfAbsent(name, k -> initHbaseConnection(conf));
-    }
-
-    static Connection initHbaseConnection(Configuration conf) {
+    @Override
+    protected Connection create() {
         try {
+            Configuration conf = HBaseConfiguration.create();
+            conf.addResource(new Path(Properties.getProperty(Const.HBASE_CONFIG_FILE)));
             return ConnectionFactory.createConnection(conf);
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -31,6 +31,7 @@ public class Const {
     public static final String HYSTRIX_METRICS_SERVER_PORT = "HYSTRIX_METRICS_SERVER_PORT";
 
     // 5. HBASE
+    public static final String HBASE_CONFIG_FILE = "HBASE_CONFIG_FILE";
     public static final String HBASE_TABLE = "HBASE_TABLE";
     public static final String HBASE_SCHEMA = "HBASE_SCHEMA";
     public static final String HBASE_COLUMN_FAMILY = "HBASE_COLUMN_FAMILY";

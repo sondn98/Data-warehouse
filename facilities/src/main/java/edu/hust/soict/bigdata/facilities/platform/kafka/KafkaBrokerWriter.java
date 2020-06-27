@@ -21,20 +21,10 @@ public class KafkaBrokerWriter implements AutoCloseable{
 
     private static final Logger logger = LoggerFactory.getLogger(KafkaBrokerWriter.class);
 
-    public KafkaBrokerWriter(Properties props) {
-        java.util.Properties kafkaProps = new java.util.Properties();
-        kafkaProps.put("bootstrap.servers", props.getProperty(Const.KAFKA_BOOSTRAP_SERVERS));
-        kafkaProps.put("acks", props.getProperty(Const.KAFKA_PRODUCER_ACKS));
-        kafkaProps.put("retries", props.getProperty(Const.KAFKA_PRODUCER_RETRIES));
-        kafkaProps.put("batch.size", props.getProperty(Const.KAFKA_PRODUCER_BATCH_SIZE));
-        kafkaProps.put("linger.ms", props.getProperty(Const.KAFKA_PRODUCER_LINGER_MS));
-        kafkaProps.put("buffer.memory", props.getProperty(Const.KAFKA_PRODUCER_BUFFER_MEMORY));
-        kafkaProps.put("max.request.size", props.getProperty(Const.KAFKA_PRODUCER_MAX_REQUEST_SIZE));
-        kafkaProps.put("key.serializer", props.getProperty(Const.KAFKA_PRODUCER_KEY_SERIALIZER));
-        kafkaProps.put("value.serializer", props.getProperty(Const.KAFKA_PRODUCER_VALUE_SERIALIZER));
+    public KafkaBrokerWriter() {
 
-        this.topic = props.getProperty(Const.KAFKA_PRODUCER_TOPIC, KAFKA_DEFAULT_TOPIC);
-        this.producer = new KafkaProducer<>(kafkaProps);
+        this.topic = Properties.getProperty(Const.KAFKA_PRODUCER_TOPIC, KAFKA_DEFAULT_TOPIC);
+        this.producer = new KafkaProducer<>(Properties.getProps());
     }
 
     public Future<RecordMetadata> write(byte[] b) {

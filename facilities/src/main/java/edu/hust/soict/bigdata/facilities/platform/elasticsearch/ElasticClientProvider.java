@@ -1,36 +1,31 @@
 package edu.hust.soict.bigdata.facilities.platform.elasticsearch;
 
 import com.google.common.net.HostAndPort;
+import edu.hust.soict.bigdata.facilities.common.config.Const;
+import edu.hust.soict.bigdata.facilities.common.config.Properties;
+import edu.hust.soict.bigdata.facilities.structures.ObjectPool;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
- * Created by sondn on 2020/03/10
+ * @author sondn
+ * @since 2020/03/10
  */
-public class ElasticClientProvider {
+public class ElasticClientProvider extends ObjectPool<RestHighLevelClient> {
 
-    private static Map<String, RestHighLevelClient> clients = new TreeMap<>();
-
-    public static RestHighLevelClient getDefault(ElasticConfig config) {
-        return getOrCreate("default", config);
-    }
-
-    public static synchronized RestHighLevelClient getOrCreate(String name, ElasticConfig config) {
-        synchronized (ElasticClientProvider.class) {
-            return clients.computeIfAbsent(name, k -> initElasticClient(config));
-        }
-    }
-
-    private static RestHighLevelClient initElasticClient(ElasticConfig config) {
-        Collection<HostAndPort> hostAndPorts = config.getHosts();
-        HttpHost[] httpHosts = hostAndPorts.stream().map(m -> new HttpHost(m.getHost(), m.getPort())).toArray(HttpHost[]::new);
+    @Override
+    @SuppressWarnings("UnstableApiUsage")
+    protected RestHighLevelClient create() {
+        List<HostAndPort> hosts = new LinkedList<>();
+        Collection<String> addresses = Properties.getCollection(Const.ELASTIC_HOST);
+        addresses.forEach(addr -> hosts.add(HostAndPort.fromString(addr)));
+        HttpHost[] httpHosts = hosts.stream().map(m -> new HttpHost(m.getHost(), m.getPort())).toArray(HttpHost[]::new);
 
         return new RestHighLevelClient(
                 RestClient.builder(httpHosts));
     }
+
 }

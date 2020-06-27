@@ -18,19 +18,14 @@ public class HdfsReader {
 
     private static final Logger logger = LoggerFactory.getLogger(HdfsReader.class);
 
-    public HdfsReader(Properties props) throws IOException {
+    public HdfsReader() throws IOException {
         if(fs == null)
             fs = FileSystem.get(URI.create(
-                    props.getProperty(Const.HADOOP_FS_URI, DEFAULT_FS)), new Configuration());
+                    Properties.getProperty(Const.HADOOP_FS_URI, DEFAULT_FS)), new Configuration());
         logger.info("Created FileSystem on hdfs: " + fs.getUri().toString());
     }
 
     public static FileSystem getFs(){
         return fs;
-    }
-
-    public File getFile(String filePath){
-        Path path = new Path(fs.getUri() + filePath);
-        return new File(path.toUri());
     }
 }

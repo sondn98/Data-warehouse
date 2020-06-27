@@ -9,14 +9,17 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class Properties extends java.util.Properties{
+public class Properties{
+
+    private static final Map<String, Object> runtimeObj = new HashMap<>();
+    private static final java.util.Properties props = new java.util.Properties();
     private static final String DEFAULT_CONFIG = "config.properties";
 
     private static final Logger logger = LoggerFactory.getLogger(Properties.class);
 
-    public Properties(){
+    static {
         try {
-            load(new InputStreamReader(
+            props.load(new InputStreamReader(
                     Objects.requireNonNull(Properties
                             .class.getClassLoader().getResourceAsStream(DEFAULT_CONFIG)),
                     StandardCharsets.UTF_8));
@@ -25,27 +28,24 @@ public class Properties extends java.util.Properties{
         }
     }
 
-    public Properties addResource(String configFilePath){
+    public static void addResource(String configFilePath){
         try {
-            load(new InputStreamReader(
+            props.load(new InputStreamReader(
                     Objects.requireNonNull(Properties
                             .class.getClassLoader().getResourceAsStream(configFilePath)),
                     StandardCharsets.UTF_8));
         } catch (IOException e) {
             logger.error("Can not load config from " + configFilePath);
         }
-
-        return this;
     }
 
-    /**
-     * Tạo ra SubProperties từ Properties hiện tại với group là null
-     *
-     * @param prefix tên của SubProperties cần tạo
-     * @return new object SubProperties
-     */
-    public SubProperties toSubProperties(String prefix) {
-        return new SubProperties(prefix, this);
+    public static String getProperty(String key){
+        return props.getProperty(key);
+    }
+
+    public static String getProperty(String key, String def){
+        String val = props.getProperty(key);
+        return val == null ? def : val;
     }
 
     /**
@@ -56,9 +56,9 @@ public class Properties extends java.util.Properties{
      * @return số int của giá trị cần lấy hoặc giá trị mặc định nếu
      * không tìm thấy giá trị nào ứng với key cần tìm
      */
-    public int getIntProperty(String key, int defVal) {
+    public static int getIntProperty(String key, int defVal) {
         try {
-            return Integer.parseInt(getProperty(key));
+            return Integer.parseInt(props.getProperty(key));
         } catch (Exception ignored) {
             return defVal;
         }
@@ -72,9 +72,9 @@ public class Properties extends java.util.Properties{
      * @return số long của giá trị cần lấy hoặc giá trị mặc định nếu
      * không tìm thấy giá trị nào ứng với key cần tìm
      */
-    public long getLongProperty(String key, long defVal) {
+    public static long getLongProperty(String key, long defVal) {
         try {
-            return Long.parseLong(getProperty(key));
+            return Long.parseLong(props.getProperty(key));
         } catch (Exception ignored) {
             return defVal;
         }
@@ -88,9 +88,9 @@ public class Properties extends java.util.Properties{
      * @return số double của giá trị cần lấy hoặc giá trị mặc định nếu
      * không tìm thấy giá trị nào ứng với key cần tìm
      */
-    public double getDoubleProperty(String key, double defVal) {
+    public static double getDoubleProperty(String key, double defVal) {
         try {
-            return Double.parseDouble(getProperty(key));
+            return Double.parseDouble(props.getProperty(key));
         } catch (Exception ignored) {
             return defVal;
         }
@@ -104,9 +104,9 @@ public class Properties extends java.util.Properties{
      * @return số double của giá trị cần lấy hoặc giá trị mặc định nếu
      * không tìm thấy giá trị nào ứng với key cần tìm
      */
-    public boolean getBoolProperty(String key, boolean defVal) {
+    public static boolean getBoolProperty(String key, boolean defVal) {
         try {
-            return Boolean.parseBoolean(getProperty(key));
+            return Boolean.parseBoolean(props.getProperty(key));
         } catch (Exception ignored) {
             return defVal;
         }
@@ -118,9 +118,9 @@ public class Properties extends java.util.Properties{
      * @param key key của giá trị cần lấy
      * @return list String các giá trị được phân cách bởi dấu phẩy
      */
-    public List<String> getCollection(String key) {
+    public static List<String> getCollection(String key) {
         try {
-            return Arrays.asList(getProperty(key).split(","));
+            return Arrays.asList(props.getProperty(key).split(","));
         } catch (Exception ignored) {
             return Collections.emptyList();
         }
@@ -133,9 +133,9 @@ public class Properties extends java.util.Properties{
      * @param delimiter chuỗi dùng để phân tách các giá trị
      * @return list String các giá trị được phân cách bởi delimiter
      */
-    public List<String> getCollection(String key, String delimiter) {
+    public static List<String> getCollection(String key, String delimiter) {
         try {
-            return Arrays.asList(getProperty(key).split(delimiter));
+            return Arrays.asList(props.getProperty(key).split(delimiter));
         } catch (Exception ignored) {
             return Collections.emptyList();
         }
@@ -150,7 +150,7 @@ public class Properties extends java.util.Properties{
      * không tìm thấy giá trị nào ứng với key cần tìm hoặc value
      * ở dạng raw không phù hợp để convert thành Date
      */
-    public Date getDateTime(String key, Date defVal) {
+    public static Date getDateTime(String key, Date defVal) {
         return getDateTime(key, "yyyy-MM-dd HH:mm:ss", defVal);
     }
 
@@ -164,10 +164,10 @@ public class Properties extends java.util.Properties{
      * không tìm thấy giá trị nào ứng với key cần tìm hoặc value
      * ở dạng raw không phù hợp để convert thành Date
      */
-    public Date getDateTime(String key, String format, Date defVal) {
+    public static Date getDateTime(String key, String format, Date defVal) {
         try {
             DateFormat df = new SimpleDateFormat(format);
-            return df.parse(getProperty(key));
+            return df.parse(props.getProperty(key));
         } catch (Exception e) {
             return defVal;
         }
@@ -181,7 +181,7 @@ public class Properties extends java.util.Properties{
      * @throws ClassNotFoundException nếu có lỗi xảy ra khi convert
      *                                từ tên class thành object Class
      */
-    public Collection<Class<?>> getClasses(String key) throws ClassNotFoundException {
+    public static Collection<Class<?>> getClasses(String key) throws ClassNotFoundException {
         List<Class<?>> classes = new LinkedList<>();
         for (String className : getCollection(key)) {
             classes.add(Class.forName(className));
@@ -189,11 +189,38 @@ public class Properties extends java.util.Properties{
         return classes;
     }
 
-    @Override
-    public String toString(){
+    /**
+     * Lấy ra một object trong quá trình chạy của hệ thống
+     * @param key
+     * @param clazz
+     * @param <T>
+     * @return
+     */
+    public static <T> T getRuntimeObj(String key, Class<T> clazz){
+        Object obj = runtimeObj.get(key);
+        if(!obj.getClass().isAssignableFrom(clazz))
+            throw new RuntimeException("Fail to get runtime object. Parsing error");
+
+        return clazz.cast(obj);
+    }
+
+    /**
+     * Set một object vào config trong quá trình chạy của hệ thống
+     * @param key
+     * @param obj
+     */
+    public static void setRuntimeObj(String key, Object obj){
+        runtimeObj.put(key, obj);
+    }
+
+    public static java.util.Properties getProps(){
+        return props;
+    }
+
+    public static String toStr(){
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("Defined properties: \n");
-        for(Map.Entry<Object, Object> kv : this.entrySet()){
+        for(Map.Entry<Object, Object> kv : props.entrySet()){
             stringBuilder.append("\t");
             stringBuilder.append(kv.getKey());
             stringBuilder.append(" = ");

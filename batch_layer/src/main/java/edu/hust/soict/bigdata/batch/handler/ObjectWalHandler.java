@@ -26,11 +26,11 @@ public class ObjectWalHandler<M extends DataModel> implements Handler<M> {
 
     private static final ExecutorService service = Executors.newFixedThreadPool(2);
 
-    public ObjectWalHandler(Properties props, WalFile wal){
+    public ObjectWalHandler(WalFile wal){
         this.hbaseRepository = Reflects.newInstance(
-                props.getProperty(Const.HBASE_REPOSITORY_CLASS), new Class[]{Properties.class}, props);
+                Properties.getProperty(Const.HBASE_REPOSITORY_CLASS), new Class[]{});
         this.hiveRepository = Reflects.newInstance(
-                props.getProperty(Const.HIVE_REPOSITORY_CLASS), new Class[]{Properties.class}, props);
+                Properties.getProperty(Const.HIVE_REPOSITORY_CLASS), new Class[]{});
 
         this.wal = wal;
     }

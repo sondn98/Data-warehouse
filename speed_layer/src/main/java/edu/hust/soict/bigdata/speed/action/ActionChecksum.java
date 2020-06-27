@@ -14,14 +14,14 @@ public class ActionChecksum<M extends DataModel> extends ActionReadBroker<M> {
     private Properties props;
 
     public ActionChecksum(Properties props, String KEY_TOPICS) {
-        super(props, KEY_TOPICS);
-        this.esRepository = new ESRepository<M>(props, "Checksum-topic-records-on-failure") {};
+        super(KEY_TOPICS);
+        this.esRepository = new ESRepository<M>("Checksum-topic-records-on-failure") {};
 
         this.props = props;
     }
 
     @Override
     public void save(List<M> product) {
-        esRepository.bulkInsert(product, props.getProperty(""));
+        esRepository.bulkInsert(product, Properties.getProperty(""));
     }
 }

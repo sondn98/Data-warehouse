@@ -1,6 +1,5 @@
 package edu.hust.soict.bigdata.facilities.common.util;
 
-import edu.hust.soict.bigdata.facilities.common.exceptions.CommonException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,8 +55,7 @@ public class Reflects {
             try {
                 c = mainCl.loadClass(name);
             } catch (ClassNotFoundException e) {
-                logger.warn("Ignoring class " + name + " due to ClassNotFoundException. See full stacktrace below");
-                logger.error(CommonException.getMessage(e));
+                logger.error("Ignoring class " + name + " due to ClassNotFoundException. See full stacktrace below", e);
             }
             if(c != null)
                 classes.add(c);

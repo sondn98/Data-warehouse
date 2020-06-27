@@ -36,8 +36,8 @@ public interface Justification<T> {
         return this;
     }
 
-    default List<T> handle(List<T> input, Properties props){
-        if(handlers.isEmpty()) setHandler(props.getCollection("messages.justification.handler.classes"));
+    default List<T> handle(List<T> input){
+        if(handlers.isEmpty()) setHandler(Properties.getCollection("messages.justification.handler.classes"));
         List<T> output = justify(input, handlers);
         save(output);
         return output;

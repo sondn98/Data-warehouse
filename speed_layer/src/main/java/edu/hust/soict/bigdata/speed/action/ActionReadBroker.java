@@ -20,14 +20,10 @@ public abstract class ActionReadBroker<M extends DataModel> extends KafkaBrokerR
     private static final ObjectMapper om = new ObjectMapper();
     private static final Logger logger = LoggerFactory.getLogger(ActionReadBroker.class);
 
-    private Properties props;
-
-    public ActionReadBroker(Properties props, String KEY_TOPICS){
-        super(props);
-        setTopics(props.getCollection(KEY_TOPICS));
+    public ActionReadBroker(String KEY_TOPICS){
+        super();
+        setTopics(Properties.getCollection(KEY_TOPICS));
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
-
-        this.props = props;
     }
 
     @Override
@@ -44,7 +40,7 @@ public abstract class ActionReadBroker<M extends DataModel> extends KafkaBrokerR
             }
         }
 
-        handle(objs, props);
+        handle(objs);
         save(objs);
     }
 

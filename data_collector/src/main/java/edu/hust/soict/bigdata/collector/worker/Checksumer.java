@@ -12,10 +12,10 @@ public class Checksumer {
     private static final Logger logger = LoggerFactory.getLogger(Checksumer.class);
 
     public static void main(String[] args) throws IOException {
-        Properties props = new Properties().toSubProperties("data-scraping");
-
         Timer timer = new Timer();
+        logger.info("Starting checksumer");
         timer.scheduleAtFixedRate(
-                new ActionChecksum("ecommerce_review", props), 1000, 1000);
+                new ActionChecksum("ecommerce_review"), 1000, 1000);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> logger.info("Checksumer stopped")));
     }
 }

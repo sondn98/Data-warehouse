@@ -3,7 +3,6 @@ package edu.hust.soict.bigdata.facilities.platform.hive;
 import com.google.common.reflect.TypeToken;
 import edu.hust.soict.bigdata.facilities.common.config.Const;
 import edu.hust.soict.bigdata.facilities.common.config.Properties;
-import edu.hust.soict.bigdata.facilities.common.exceptions.CommonException;
 import edu.hust.soict.bigdata.facilities.common.util.Reflects;
 import edu.hust.soict.bigdata.facilities.model.DataModel;
 import edu.hust.soict.bigdata.facilities.model.HiveModel;
@@ -23,22 +22,20 @@ public abstract class HiveRepository<M extends DataModel> implements AutoCloseab
     protected String tableName;
 
     protected static Connection connection;
-    protected Properties props;
 
     private static final Logger logger = LoggerFactory.getLogger(HiveRepository.class);
 
     @SuppressWarnings("unchecked")
-    public HiveRepository(Properties props) throws ClassNotFoundException, SQLException {
+    public HiveRepository() throws ClassNotFoundException, SQLException {
         Class<M> clazz = (Class<M>)Class.forName(classTypeParameter());
         if(clazz.isAnnotationPresent(HiveModel.class)){
             this.hiveModel = clazz.getAnnotation(HiveModel.class);
-            String table = props.getProperty(Const.HIVE_TABLE);
-            String schema = props.getProperty(Const.HIVE_SCHEMA);
+            String table = Properties.getProperty(Const.HIVE_TABLE);
+            String schema = Properties.getProperty(Const.HIVE_SCHEMA);
             this.tableName = schema + "." + table;
 
             if(connection == null)
-                connection = HiveConnectionProvider.getOrCreate("default", props);
-            this.props = props;
+                connection = HiveConnectionProvider.getOrCreate("default", Connection.class);
         } else{
             throw new RuntimeException("Type parameter must be annotated by HiveModel annotation");
         }
@@ -84,7 +81,7 @@ public abstract class HiveRepository<M extends DataModel> implements AutoCloseab
 
             ps.executeUpdate();
         } catch (SQLException e){
-            logger.error(CommonException.getMessage(e));
+            logger.error("Error while pushing file to hive", e);
         }
     }
 

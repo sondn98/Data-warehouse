@@ -27,17 +27,15 @@ public abstract class HbaseRepository<T extends DataModel> implements AutoClosea
 
     protected static Connection connection;
     protected byte[] cf;
-    protected Properties props;
 
     private static Logger logger = LoggerFactory.getLogger(HbaseRepository.class);
 
-    public HbaseRepository(Properties props) {
+    public HbaseRepository() {
         if(null == connection)
-            connection = HBaseConnectionProvider.getDefault(HBaseConfig.loadConfig());
-        this.tableName = props.getProperty(Const.HBASE_TABLE);
-        this.namespace = props.getProperty(Const.HBASE_SCHEMA);
-        this.cf = props.getProperty(Const.HBASE_COLUMN_FAMILY).getBytes();
-        this.props = props;
+            connection = HBaseConnectionProvider.getOrCreate("default", Connection.class);
+        this.tableName = Properties.getProperty(Const.HBASE_TABLE);
+        this.namespace = Properties.getProperty(Const.HBASE_SCHEMA);
+        this.cf = Properties.getProperty(Const.HBASE_COLUMN_FAMILY).getBytes();
 
         logger.info("Created repository on table " + tableName);
     }

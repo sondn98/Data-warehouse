@@ -16,10 +16,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * @author <a href="https://github.com/tjeubaoit">tjeubaoit</a>
- * @editor sondn on 2020/03/10
+ * @author sondn on 2020/03/10
  */
-public abstract class KafkaBrokerReader{
+public class KafkaBrokerReader{
 
     private static final String KEY_MIN_RECORDS = "kafka.min.records";
     private static final String KEY_TOPICS = "kafka.consumer.topics";
@@ -31,22 +30,20 @@ public abstract class KafkaBrokerReader{
     private int minRecords; // min number record to try retrieve before sent to handlers
     private ExecutorService executor;
     private Double timeMornitor;
-    private Properties consumerProps;
     private AtomicBoolean running;
 
     private static final Logger logger = LoggerFactory.getLogger(KafkaBrokerReader.class);
 
-    public KafkaBrokerReader(Properties p) {
-        this.configure(p);
+    public KafkaBrokerReader() {
+        this.configure();
     }
 
-    private void configure(Properties props) {
-        this.consumerProps = KafkaConfig.consumerProperties();
-        this.topics = props.getCollection(KEY_TOPICS);
-        this.minRecords = props.getIntProperty(KEY_MIN_RECORDS, 1);
-        this.timeMornitor = props.getDoubleProperty(KEY_MONITOR_RATE, 0.1);
+    private void configure() {
+        this.topics = Properties.getCollection(KEY_TOPICS);
+        this.minRecords = Properties.getIntProperty(KEY_MIN_RECORDS, 1);
+        this.timeMornitor = Properties.getDoubleProperty(KEY_MONITOR_RATE, 0.1);
 
-        this.numConsumers = props.getIntProperty(KEY_NUM_CONSUMERS, Runtime.getRuntime().availableProcessors());
+        this.numConsumers = Properties.getIntProperty(KEY_NUM_CONSUMERS, Runtime.getRuntime().availableProcessors());
         // number executor threads equals number consumer
         this.executor = Executors.newFixedThreadPool(numConsumers);
     }
@@ -66,7 +63,8 @@ public abstract class KafkaBrokerReader{
 
     private void startKafkaConsumer(Collection<String> topics) {
         while (running.get()) {
-            try (KafkaConsumer<String, byte[]> consumer = new KafkaConsumer<>(consumerProps)) {
+            try (KafkaConsumer<String, byte[]> consumer =
+                         new KafkaConsumer<>(Properties.getProps())) {
                 consumer.subscribe(topics);
                 logger.info(Thread.currentThread().getName() + " start subscribe topic: "+ topics);
 
@@ -96,5 +94,7 @@ public abstract class KafkaBrokerReader{
         this.topics = topics;
     }
 
-    public abstract void invokeHandlers(Records records);
+    public void invokeHandlers(Records records){
+        // Should be overridden
+    }
 }

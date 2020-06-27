@@ -18,6 +18,7 @@ public class Strings {
     }
 
     public static boolean isNotNullOrEmpty(String content){
-        return !isNullOrEmpty(content) && !(content.toLowerCase().equals("null") || content.toLowerCase().equals("(null)"));
+        return !isNullOrEmpty(content) &&
+                !(content.toLowerCase().equals("null") || content.toLowerCase().equals("(null)"));
     }
 }
