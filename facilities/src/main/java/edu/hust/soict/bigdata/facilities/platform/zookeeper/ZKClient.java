@@ -1,7 +1,7 @@
 package edu.hust.soict.bigdata.facilities.platform.zookeeper;
 
 import edu.hust.soict.bigdata.facilities.common.config.Const;
-import edu.hust.soict.bigdata.facilities.common.config.Properties;
+import edu.hust.soict.bigdata.facilities.common.config.Config;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
@@ -9,7 +9,6 @@ import org.apache.zookeeper.ZooKeeper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -18,14 +17,10 @@ public class ZKClient implements AutoCloseable{
     private ZooKeeper zookeeper;
     private static final Logger logger = LoggerFactory.getLogger(ZKClient.class);
 
-    public ZKClient() throws IOException {
-        String host = Properties.getProperty(Const.ZK_HOST, "localhost");
-        int sessionTimeout = Properties.getIntProperty(Const.ZK_CLIENT_SESSION_TIMEOUT, 2000);
-        zookeeper = new ZooKeeper(host, sessionTimeout, watchedEvent -> {
-            // ignored
-        });
-
-        logger.info("Created zookeeper client on zk server: " + host);
+    public ZKClient() {
+        this.zookeeper = ZookeeperClientProvider
+                .getInstance()
+                .getOrCreate(Config.getProperty(Const.ZK_CLIENT_CONNECTION_NAME, "default"));
     }
 
     public void create(String path, String data) throws KeeperException, InterruptedException {

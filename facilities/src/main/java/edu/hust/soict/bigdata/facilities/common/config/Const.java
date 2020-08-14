@@ -2,27 +2,30 @@ package edu.hust.soict.bigdata.facilities.common.config;
 
 public class Const {
     //
+    //                          SYSTEM
+    //
+    public static final String CONFIG_FOLDER = "CONFIG_FOLDER";
+
+    public static final String PRODUCER_TOPIC = "PRODUCER_TOPIC";
+
+    public static final String CONSUMER_TOPICS = "CONSUMER_TOPICS";
+    public static final String NUM_CONSUMER_THREAD = "NUM_CONSUMER_THREAD";
+
+    //
     //                          PLATFORMS
     //
     // 1. KAFKA
-    public static final String KAFKA_BOOSTRAP_SERVERS = "KAFKA_BOOSTRAP_SERVERS";
-    public static final String KAFKA_PRODUCER_TOPIC = "KAFKA_PRODUCER_TOPIC";
-    public static final String KAFKA_PRODUCER_ACKS = "KAFKA_PRODUCER_ACKS";
-    public static final String KAFKA_PRODUCER_RETRIES = "KAFKA_PRODUCER_RETRIES";
-    public static final String KAFKA_PRODUCER_BATCH_SIZE = "KAFKA_PRODUCER_BATCH_SIZE";
-    public static final String KAFKA_PRODUCER_LINGER_MS = "KAFKA_PRODUCER_LINGER_MS";
-    public static final String KAFKA_PRODUCER_BUFFER_MEMORY = "KAFKA_PRODUCER_BUFFER_MEMORY";
-    public static final String KAFKA_PRODUCER_MAX_REQUEST_SIZE = "KAFKA_PRODUCER_MAX_REQUEST_SIZE";
-    public static final String KAFKA_PRODUCER_KEY_SERIALIZER = "KAFKA_PRODUCER_KEY_SERIALIZER";
-    public static final String KAFKA_PRODUCER_VALUE_SERIALIZER = "KAFKA_PRODUCER_VALUE_SERIALIZER";
+    //// Bootstrap server
+    public static final String KAFKA_CONFIG_FILE = "KAFKA_CONFIG_FILE";
 
     // 2. HDFS
+    public static final String HDFS_CLIENT_CONNECTION_NAME = "HDFS_CLIENT_CONNECTION_NAME";
     public static final String HADOOP_FS_URI = "HADOOP_FS_URI";
     public static final String HDFS_DATA_FOLDER = "HDFS_DATA_FOLDER";
 
     // 3. ZOOKEEPER
     public static final String ZK_HOST = "ZK_HOST";
-    public static final String ZK_CLIENT_NAME = "ZK_CLIENT_NAME";
+    public static final String ZK_CLIENT_CONNECTION_NAME = "ZK_CLIENT_CONNECTION_NAME";
     public static final String ZK_CLIENT_SESSION_TIMEOUT = "ZK_CLIENT_SESSION_TIMEOUT";
     public static final String ZK_INFO_HDFS_NEW_FILE_ZNODE = "ZK_INFO_HDFS_NEW_FILE_ZNODE";
 
@@ -31,6 +34,7 @@ public class Const {
     public static final String HYSTRIX_METRICS_SERVER_PORT = "HYSTRIX_METRICS_SERVER_PORT";
 
     // 5. HBASE
+    public static final String HBASE_CLIENT_CONNECTION_NAME = "HBASE_CLIENT_CONNECTION_NAME";
     public static final String HBASE_CONFIG_FILE = "HBASE_CONFIG_FILE";
     public static final String HBASE_TABLE = "HBASE_TABLE";
     public static final String HBASE_SCHEMA = "HBASE_SCHEMA";
@@ -40,6 +44,7 @@ public class Const {
     public static final String SYSTEM_FACILITIES_HBASE_HOME = "SYSTEM_FACILITIES_HBASE_HOME";
 
     // 6. HIVE
+    public static final String HIVE_CLIENT_CONNECTION_NAME = "HIVE_CLIENT_CONNECTION_NAME";
     public static final String HIVE_CONNECTION_URL = "HIVE_CONNECTION_URL";
     public static final String HIVE_TABLE = "HIVE_TABLE";
     public static final String HIVE_SCHEMA = "HIVE_SCHEMA";

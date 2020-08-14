@@ -1,7 +1,6 @@
 package edu.hust.soict.bigdata.collector.worker;
 
 import edu.hust.soict.bigdata.collector.action.ActionChecksum;
-import edu.hust.soict.bigdata.facilities.common.config.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

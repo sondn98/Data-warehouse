@@ -2,7 +2,7 @@ package edu.hust.soict.bigdata.collector.action;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.hust.soict.bigdata.facilities.common.config.Const;
-import edu.hust.soict.bigdata.facilities.common.config.Properties;
+import edu.hust.soict.bigdata.facilities.common.config.Config;
 import edu.hust.soict.bigdata.facilities.common.wal.WalFile;
 import edu.hust.soict.bigdata.facilities.common.wal.impl.LocalWalFile;
 import edu.hust.soict.bigdata.facilities.model.WalInfo;
@@ -31,7 +31,7 @@ public class ActionChecksum extends TimerTask {
     private static final ObjectMapper om = new ObjectMapper();
 
     public ActionChecksum(String name) throws IOException {
-        this.folder = Properties.getProperty(Const.LOCAL_FS_WAL_FOLDER);
+        this.folder = Config.getProperty(Const.LOCAL_FS_WAL_FOLDER);
         this.hdfsWriter = new HdfsWriter();
 
         zookeeperClient = ZookeeperClientProvider.getOrCreate(name, ZKClient.class);
@@ -46,15 +46,15 @@ public class ActionChecksum extends TimerTask {
             for(File file : files){
                 try {
                     WalFile wal = new LocalWalFile(file.getAbsolutePath(),
-                            Properties.getProperty(Const.WAL_WRITER_CODEC, "simple"),
-                            Properties.getLongProperty(Const.WAL_MAX_SIZE, 1048576));
+                            Config.getProperty(Const.WAL_WRITER_CODEC, "simple"),
+                            Config.getLongProperty(Const.WAL_MAX_SIZE, 1048576));
                     if(wal.exists()){
                         BasicFileAttributes attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
                         long lastModified = attr.lastModifiedTime().toMillis();
                         long now = System.currentTimeMillis();
-                        long expiredTime = Properties.getLongProperty(Const.WAL_EXPIRATION_TIME, 86400);
+                        long expiredTime = Config.getLongProperty(Const.WAL_EXPIRATION_TIME, 86400);
                         if(wal.isReachedLimit() || now - lastModified > expiredTime){
-                            String hdfsFilePath = Properties.getProperty(Const.HDFS_DATA_FOLDER) + wal.name();
+                            String hdfsFilePath = Config.getProperty(Const.HDFS_DATA_FOLDER) + wal.name();
                             logger.info("---> Pushing a file on hdfs: " + hdfsFilePath);
                             logger.info("---> File size: " + wal.length());
                             logger.info("---> Last modified: " + FileTime.from(lastModified, TimeUnit.MILLISECONDS));
@@ -62,7 +62,7 @@ public class ActionChecksum extends TimerTask {
 
                             WalInfo keeper = wal.getInfo();
                             zookeeperClient.create(
-                                    Properties.getProperty(Const.ZK_INFO_HDFS_NEW_FILE_ZNODE) + wal.name(),
+                                    Config.getProperty(Const.ZK_INFO_HDFS_NEW_FILE_ZNODE) + wal.name(),
                                     om.writeValueAsString(keeper));
                             wal.delete();
                         }

@@ -1,5 +1,7 @@
 package edu.hust.soict.bigdata.facilities.common.config;
 
+import com.google.inject.internal.util.$AsynchronousComputationException;
+import edu.hust.soict.bigdata.facilities.common.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,30 +11,39 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class Properties{
+public class Config {
 
-    private static final Map<String, Object> runtimeObj = new HashMap<>();
-    private static final java.util.Properties props = new java.util.Properties();
-    private static final String DEFAULT_CONFIG = "config.properties";
+    private static final String CONFIG_FILE = "config.properties";
 
-    private static final Logger logger = LoggerFactory.getLogger(Properties.class);
+    private static Map<String, Object> runtimeObj = new HashMap<>();
+    private static Properties props;
+
+    private static final Logger logger = LoggerFactory.getLogger(Config.class);
 
     static {
         try {
-            props.load(new InputStreamReader(
-                    Objects.requireNonNull(Properties
-                            .class.getClassLoader().getResourceAsStream(DEFAULT_CONFIG)),
-                    StandardCharsets.UTF_8));
+            props = loadDefault(CONFIG_FILE);
+            String externalConfFolder = System.getProperty(Const.CONFIG_FOLDER);
+            if(externalConfFolder != null)
+                addResource(Strings.concatFilePath(externalConfFolder, CONFIG_FILE));
         } catch (IOException e) {
-            logger.error("Can not load config from config.properties");
+            logger.info("Can not load properties", e);
         }
+    }
+
+    public static Properties loadDefault(String confFile) throws IOException {
+        Properties p = new Properties();
+        p.load(new InputStreamReader(
+                Objects.requireNonNull(Config.class.getClassLoader()
+                        .getResourceAsStream(confFile)),
+                StandardCharsets.UTF_8));
+        return p;
     }
 
     public static void addResource(String configFilePath){
         try {
             props.load(new InputStreamReader(
-                    Objects.requireNonNull(Properties
-                            .class.getClassLoader().getResourceAsStream(configFilePath)),
+                    new FileInputStream(configFilePath),
                     StandardCharsets.UTF_8));
         } catch (IOException e) {
             logger.error("Can not load config from " + configFilePath);
@@ -191,9 +202,8 @@ public class Properties{
 
     /**
      * Lấy ra một object trong quá trình chạy của hệ thống
-     * @param key
-     * @param clazz
-     * @param <T>
+     * @param key property's key
+     * @param clazz object class
      * @return
      */
     public static <T> T getRuntimeObj(String key, Class<T> clazz){
@@ -213,8 +223,21 @@ public class Properties{
         runtimeObj.put(key, obj);
     }
 
-    public static java.util.Properties getProps(){
+    public static Properties getProps(){
         return props;
+    }
+
+    public static Properties particularProps(String configFilePath, boolean includeDefault){
+        Properties p = includeDefault ? new Properties(props) : new Properties();
+        try {
+            p.load(new InputStreamReader(
+                    new FileInputStream(configFilePath),
+                    StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            logger.error("Can not load config from " + configFilePath);
+        }
+
+        return p;
     }
 
     public static String toStr(){

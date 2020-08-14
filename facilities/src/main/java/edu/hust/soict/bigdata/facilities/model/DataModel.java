@@ -2,12 +2,18 @@ package edu.hust.soict.bigdata.facilities.model;
 
 import java.io.Serializable;
 
-public interface DataModel extends Serializable {
+public abstract class DataModel implements Serializable {
 
-    void setId(String id);
+    private String id;
 
-    String getId();
+    public void setId(String id){
+        this.id = id;
+    }
+
+    public String getId(){
+        return this.id;
+    }
 
     @Override
-    String toString();
+    public abstract String toString();
 }

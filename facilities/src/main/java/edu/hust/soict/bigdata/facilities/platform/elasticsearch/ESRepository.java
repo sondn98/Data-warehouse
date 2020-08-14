@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.hust.soict.bigdata.facilities.common.config.Const;
-import edu.hust.soict.bigdata.facilities.common.config.Properties;
+import edu.hust.soict.bigdata.facilities.common.config.Config;
 import edu.hust.soict.bigdata.facilities.model.DataModel;
 import edu.hust.soict.bigdata.facilities.platform.kafka.KafkaBrokerWriter;
 import org.elasticsearch.action.ActionListener;
@@ -33,15 +33,14 @@ public abstract class ESRepository<M extends DataModel> implements AutoCloseable
     private RestHighLevelClient esClient;
     private KafkaBrokerWriter writer;
 
-    private String topicOnFailure;
-
     private static final ObjectMapper om = new ObjectMapper();
     private static final Logger logger = LoggerFactory.getLogger(ESRepository.class);
 
     public ESRepository(String clientName){
-        esClient = ElasticClientProvider.getOrCreate(clientName, RestHighLevelClient.class);
-        this.writer = new KafkaBrokerWriter();
-        this.topicOnFailure = Properties.getProperty(Const.ELASTIC_KAFKA_TOPIC_ON_FAILURE);
+        esClient = ElasticClientProvider
+                .getInstance()
+                .getOrCreate(clientName);
+        this.writer = new KafkaBrokerWriter(Config.getProperty(Const.ELASTIC_KAFKA_TOPIC_ON_FAILURE));
     }
 
     public void add(M data, String index) throws JsonProcessingException {
@@ -132,7 +131,7 @@ public abstract class ESRepository<M extends DataModel> implements AutoCloseable
 
     private void pushOnFailure(M data){
         try {
-            writer.write(data.getId(), om.writeValueAsString(data), topicOnFailure);
+            writer.write(data.getId(), om.writeValueAsString(data));
         } catch (JsonProcessingException e1) {
             logger.error(e1.getMessage());
         }

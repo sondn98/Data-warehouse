@@ -1,6 +1,6 @@
 package edu.hust.soict.bigdata.speed.justification;
 
-import edu.hust.soict.bigdata.facilities.common.config.Properties;
+import edu.hust.soict.bigdata.facilities.common.config.Config;
 import edu.hust.soict.bigdata.facilities.common.util.Reflects;
 
 import java.util.Collection;
@@ -37,7 +37,7 @@ public interface Justification<T> {
     }
 
     default List<T> handle(List<T> input){
-        if(handlers.isEmpty()) setHandler(Properties.getCollection("messages.justification.handler.classes"));
+        if(handlers.isEmpty()) setHandler(Config.getCollection("messages.justification.handler.classes"));
         List<T> output = justify(input, handlers);
         save(output);
         return output;

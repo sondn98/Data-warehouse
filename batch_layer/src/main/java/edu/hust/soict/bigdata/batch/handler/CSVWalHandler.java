@@ -2,7 +2,7 @@ package edu.hust.soict.bigdata.batch.handler;
 
 import edu.hust.soict.bigdata.batch.common.ShellRunner;
 import edu.hust.soict.bigdata.facilities.common.config.Const;
-import edu.hust.soict.bigdata.facilities.common.config.Properties;
+import edu.hust.soict.bigdata.facilities.common.config.Config;
 import edu.hust.soict.bigdata.facilities.common.wal.WalFile;
 import edu.hust.soict.bigdata.facilities.model.DataModel;
 import org.slf4j.Logger;
@@ -26,15 +26,15 @@ public class CSVWalHandler<M extends DataModel> implements Handler<M> {
         logger.warn("Make sure that hive table was stored by org.apache.hadoop.hive.hbase.HBaseStorageHandler for preventing data losing");
         logger.info("Submitting file...");
 
-        String hbaseHome = Properties.getProperty(Const.SYSTEM_FACILITIES_HBASE_HOME);
+        String hbaseHome = Config.getProperty(Const.SYSTEM_FACILITIES_HBASE_HOME);
         String importTool = "org.apache.hadoop.hbase.mapreduce.ImportTsv";
         String delimiter = "-Dimporttsv.separator=\",\"";
 
-        String columnFalimy = Properties.getProperty(Const.HBASE_COLUMN_FAMILY);
-        String qulifiers = "HBASE_ROW_KEY," + Properties.getCollection(Const.HBASE_QUALIFIERS).stream().map(m -> columnFalimy + ":" + m).collect(Collectors.joining(","));
+        String columnFalimy = Config.getProperty(Const.HBASE_COLUMN_FAMILY);
+        String qulifiers = "HBASE_ROW_KEY," + Config.getCollection(Const.HBASE_QUALIFIERS).stream().map(m -> columnFalimy + ":" + m).collect(Collectors.joining(","));
         String columnMapper = "-Dimporttsv.columns=" + qulifiers;
 
-        String table = Properties.getProperty(Const.HBASE_TABLE);
+        String table = Config.getProperty(Const.HBASE_TABLE);
         String filePath = wal.absolutePath();
 
         String script = String.join(" ",

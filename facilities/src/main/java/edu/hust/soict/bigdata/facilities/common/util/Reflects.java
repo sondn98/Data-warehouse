@@ -66,7 +66,7 @@ public class Reflects {
 
     public static <T> T newInstance(Class<T> clazz, Class<?>[] parameterTypes, Object... parameters) {
         try {
-            return (T) clazz.getConstructor(parameterTypes).newInstance(parameters);
+            return clazz.getConstructor(parameterTypes).newInstance(parameters);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException
                 | NoSuchMethodException e) {
             throw new RuntimeException(e);

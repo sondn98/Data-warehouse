@@ -4,12 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.hust.soict.bigdata.batch.common.BatchConst;
 import edu.hust.soict.bigdata.batch.handler.Handler;
 import edu.hust.soict.bigdata.facilities.common.config.Const;
-import edu.hust.soict.bigdata.facilities.common.config.Properties;
+import edu.hust.soict.bigdata.facilities.common.config.Config;
 import edu.hust.soict.bigdata.facilities.model.DataModel;
 import edu.hust.soict.bigdata.facilities.model.WalInfo;
-import edu.hust.soict.bigdata.facilities.platform.hadoop.HdfsReader;
+import edu.hust.soict.bigdata.facilities.platform.hadoop.HdfsConnectionProvider;
 import edu.hust.soict.bigdata.facilities.platform.zookeeper.ZKClient;
-import edu.hust.soict.bigdata.facilities.platform.zookeeper.ZookeeperClientProvider;
 import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class BatchProcessingThread<M extends DataModel> implements Runnable{
 
     private static ExecutorService service;
-    private static HdfsReader reader;
+    private static HdfsConnectionProvider reader;
     private static Long handleInterval;
     private static Long bulkloadTimeout;
 
@@ -32,20 +31,20 @@ public class BatchProcessingThread<M extends DataModel> implements Runnable{
 
     public BatchProcessingThread() throws IOException {
         if(service == null)
-            service = Executors.newFixedThreadPool(Properties.getIntProperty(BatchConst.PROCESSING_THREAD_COUNT, 10));
+            service = Executors.newFixedThreadPool(Config.getIntProperty(BatchConst.PROCESSING_THREAD_COUNT, 10));
         if(reader == null)
-            reader = new HdfsReader();
+            reader = new HdfsConnectionProvider();
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
-        bulkloadTimeout = Properties.getLongProperty(BatchConst.PROCESSING_THREAD_BULKLOAD_TIMEOUT, 600000);
+        bulkloadTimeout = Config.getLongProperty(BatchConst.PROCESSING_THREAD_BULKLOAD_TIMEOUT, 600000);
         running = new AtomicBoolean(true);
-        handleInterval = Properties.getLongProperty(BatchConst.PROCESSING_THREAD_INTERVAL, 100);
+        handleInterval = Config.getLongProperty(BatchConst.PROCESSING_THREAD_INTERVAL, 100);
     }
 
     private void handle(){
         try{
-            ZKClient zkClient = ZookeeperClientProvider.getOrCreate(Properties.getProperty(Const.ZK_CLIENT_NAME), ZKClient.class);
-            String zNodeParent = Properties.getProperty(Const.ZK_INFO_HDFS_NEW_FILE_ZNODE);
+            ZKClient zkClient = new ZKClient();
+            String zNodeParent = Config.getProperty(Const.ZK_INFO_HDFS_NEW_FILE_ZNODE);
             String data = zkClient.getDataAndDelete(zNodeParent);
             if(data == null)
                 return;
@@ -65,7 +64,7 @@ public class BatchProcessingThread<M extends DataModel> implements Runnable{
                 logger.error("---> File " + data + " failed to processed. Trying to create znode for next processing");
                 String[] path = keeper.filePath.split("/");
                 String fileName = path[path.length - 1];
-                zkClient.create(Properties.getProperty(Const.ZK_INFO_HDFS_NEW_FILE_ZNODE) + "/" + fileName, data);
+                zkClient.create(Config.getProperty(Const.ZK_INFO_HDFS_NEW_FILE_ZNODE) + "/" + fileName, data);
                 logger.info("Created znode for next processing");
             } catch (TimeoutException e) {
                 e.printStackTrace();

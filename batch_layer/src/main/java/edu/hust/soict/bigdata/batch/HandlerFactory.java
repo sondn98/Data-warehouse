@@ -8,14 +8,14 @@ import edu.hust.soict.bigdata.facilities.common.wal.impl.HdfsFile;
 import edu.hust.soict.bigdata.facilities.common.wal.impl.LocalWalFile;
 import edu.hust.soict.bigdata.facilities.model.DataModel;
 import edu.hust.soict.bigdata.facilities.model.WalInfo;
-import edu.hust.soict.bigdata.facilities.platform.hadoop.HdfsReader;
+import edu.hust.soict.bigdata.facilities.platform.hadoop.HdfsConnectionProvider;
 
 class HandlerFactory {
 
     static <T extends DataModel> Handler<T> getHandler(WalInfo keeper) {
         switch (keeper.codec){
             case "csv":
-                return new CSVWalHandler<>(new HdfsFile(HdfsReader.getFs(), keeper.filePath, keeper.codec));
+                return new CSVWalHandler<>(new HdfsFile(HdfsConnectionProvider.getFs(), keeper.filePath, keeper.codec));
             case "object":
                 return new ObjectWalHandler<>(new LocalWalFile(keeper.filePath, keeper.codec, keeper.maxSize));
             case "json":

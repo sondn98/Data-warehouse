@@ -1,6 +1,5 @@
 package edu.hust.soict.bigdata.facilities.structures;
 
-import edu.hust.soict.bigdata.facilities.common.util.Reflects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,16 +8,20 @@ import java.util.Map;
 
 public abstract class ObjectPool<T> {
 
-    private static Map<String, Object> poolObjects = new HashMap<>();
+    protected static final Logger logger = LoggerFactory.getLogger(ObjectPool.class);
 
-    private static final Logger logger = LoggerFactory.getLogger(ObjectPool.class);
+    private Map<String, T> poolObjects;
 
-    public static synchronized <T> T getOrCreate(String name, Class<T> clazz){
+    public ObjectPool(){
+        this.poolObjects = new HashMap<>();
+    }
+
+    public synchronized T getOrCreate(String name){
         if(poolObjects.containsKey(name))
-            return clazz.cast(poolObjects.get(name));
+            return poolObjects.get(name);
 
         logger.info("There is no key " + name + " exist. Tend to create a new object");
-        T obj = Reflects.newInstance(clazz, new Class[]{});
+        T obj = this.create();
         poolObjects.put(name, obj);
         return obj;
     }

@@ -1,7 +1,7 @@
 package edu.hust.soict.bigdata.batch.handler;
 
 import edu.hust.soict.bigdata.facilities.common.config.Const;
-import edu.hust.soict.bigdata.facilities.common.config.Properties;
+import edu.hust.soict.bigdata.facilities.common.config.Config;
 import edu.hust.soict.bigdata.facilities.common.util.Reflects;
 import edu.hust.soict.bigdata.facilities.common.wal.WalFile;
 import edu.hust.soict.bigdata.facilities.common.wal.WalReader;
@@ -29,9 +29,9 @@ public class JSONWalHandler<M extends DataModel> implements Handler<M> {
 
     public JSONWalHandler(WalFile wal){
         this.hbaseRepository = Reflects.newInstance(
-                Properties.getProperty(Const.HBASE_REPOSITORY_CLASS), new Class[]{});
+                Config.getProperty(Const.HBASE_REPOSITORY_CLASS), new Class[]{});
         this.hiveRepository = Reflects.newInstance(
-                Properties.getProperty(Const.HIVE_REPOSITORY_CLASS), new Class[]{});
+                Config.getProperty(Const.HIVE_REPOSITORY_CLASS), new Class[]{});
 
         this.wal = wal;
     }

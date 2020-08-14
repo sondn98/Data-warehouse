@@ -3,7 +3,7 @@ package edu.hust.soict.bigdata.facilities.common.hystrix.monitor;
 import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
 import com.soundcloud.prometheus.hystrix.HystrixPrometheusMetricsPublisher;
 import edu.hust.soict.bigdata.facilities.common.config.Const;
-import edu.hust.soict.bigdata.facilities.common.config.Properties;
+import edu.hust.soict.bigdata.facilities.common.config.Config;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.exporter.MetricsServlet;
 import org.eclipse.jetty.server.Server;
@@ -22,8 +22,8 @@ public class MetricsServer {
     private Server server;
 
     public MetricsServer() {
-        this.host = Properties.getProperty(Const.HYSTRIX_METRICS_SERVER_HOST, "localhost");
-        this.port = Properties.getIntProperty(Const.HYSTRIX_METRICS_SERVER_PORT, 7998);
+        this.host = Config.getProperty(Const.HYSTRIX_METRICS_SERVER_HOST, "localhost");
+        this.port = Config.getIntProperty(Const.HYSTRIX_METRICS_SERVER_PORT, 7998);
     }
 
     public void start() {

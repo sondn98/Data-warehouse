@@ -13,6 +13,14 @@ public class Strings {
         return String.format(Locale.US, format, params);
     }
 
+    public static String concatFilePath(String parent, String child){
+        if(parent.endsWith("/"))
+            parent = parent.substring(0, parent.length() - 1);
+        if(child.startsWith("/"))
+            return parent + child;
+        else return parent + "/" + child;
+    }
+
     public static boolean isNullOrEmpty(String content) {
         return (content == null) || (content.isEmpty());
     }

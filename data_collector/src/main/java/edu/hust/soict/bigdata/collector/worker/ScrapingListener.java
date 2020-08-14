@@ -1,7 +1,7 @@
 package edu.hust.soict.bigdata.collector.worker;
 
 import edu.hust.soict.bigdata.collector.common.CollectorConst;
-import edu.hust.soict.bigdata.facilities.common.config.Properties;
+import edu.hust.soict.bigdata.facilities.common.config.Config;
 import edu.hust.soict.bigdata.facilities.common.hystrix.monitor.MetricsServer;
 import edu.hust.soict.bigdata.facilities.common.util.Reflects;
 import org.eclipse.jetty.server.ConnectionFactory;
@@ -21,12 +21,12 @@ public class ScrapingListener {
 
     public static void start() throws Exception {
         System.setProperty("es.set.netty.runtime.available.processors", "false");
-        String port = Properties.getProperty(CollectorConst.LISTENER_SERVER_PORT, "6969");
-        final String serverAddress = Properties.getProperty(CollectorConst.LISTENER_SERVER_ADDRESS, "localhost");
+        String port = Config.getProperty(CollectorConst.LISTENER_SERVER_PORT, "6969");
+        final String serverAddress = Config.getProperty(CollectorConst.LISTENER_SERVER_ADDRESS, "localhost");
         final String url = "http://" + serverAddress + ":" + port;
         URI uri = URI.create(url);
 
-        Class[] apis = Reflects.getClass(Properties.getCollection(CollectorConst.LISTENER_SERVER_API_CLASSES));
+        Class[] apis = Reflects.getClass(Config.getCollection(CollectorConst.LISTENER_SERVER_API_CLASSES));
         ResourceConfig resourceConfig = new ResourceConfig(apis);
 
         logger.info("Jersey on Jetty container started. Try out " + url);
@@ -54,8 +54,8 @@ public class ScrapingListener {
     }
 
     public static void main(String[] args) throws Exception {
-        Properties.addResource("collector.properties");
-        logger.info(Properties.toStr());
+        Config.addResource("collector.properties");
+        logger.info(Config.toStr());
 
         start();
         logger.info("Server is running ...");

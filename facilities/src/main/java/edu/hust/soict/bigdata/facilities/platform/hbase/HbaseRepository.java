@@ -2,7 +2,7 @@ package edu.hust.soict.bigdata.facilities.platform.hbase;
 
 import com.google.common.reflect.TypeToken;
 import edu.hust.soict.bigdata.facilities.common.config.Const;
-import edu.hust.soict.bigdata.facilities.common.config.Properties;
+import edu.hust.soict.bigdata.facilities.common.config.Config;
 import edu.hust.soict.bigdata.facilities.common.util.Reflects;
 import edu.hust.soict.bigdata.facilities.model.DataModel;
 import org.apache.hadoop.hbase.CompareOperator;
@@ -32,10 +32,12 @@ public abstract class HbaseRepository<T extends DataModel> implements AutoClosea
 
     public HbaseRepository() {
         if(null == connection)
-            connection = HBaseConnectionProvider.getOrCreate("default", Connection.class);
-        this.tableName = Properties.getProperty(Const.HBASE_TABLE);
-        this.namespace = Properties.getProperty(Const.HBASE_SCHEMA);
-        this.cf = Properties.getProperty(Const.HBASE_COLUMN_FAMILY).getBytes();
+            connection = HBaseConnectionProvider
+                    .getInstance()
+                    .getOrCreate(Config.getProperty(Const.HBASE_CLIENT_CONNECTION_NAME, "default"));
+        this.tableName = Config.getProperty(Const.HBASE_TABLE);
+        this.namespace = Config.getProperty(Const.HBASE_SCHEMA);
+        this.cf = Config.getProperty(Const.HBASE_COLUMN_FAMILY).getBytes();
 
         logger.info("Created repository on table " + tableName);
     }

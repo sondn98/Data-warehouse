@@ -2,7 +2,7 @@ package edu.hust.soict.bigdata.facilities.platform.hive;
 
 import com.google.common.reflect.TypeToken;
 import edu.hust.soict.bigdata.facilities.common.config.Const;
-import edu.hust.soict.bigdata.facilities.common.config.Properties;
+import edu.hust.soict.bigdata.facilities.common.config.Config;
 import edu.hust.soict.bigdata.facilities.common.util.Reflects;
 import edu.hust.soict.bigdata.facilities.model.DataModel;
 import edu.hust.soict.bigdata.facilities.model.HiveModel;
@@ -21,21 +21,22 @@ public abstract class HiveRepository<M extends DataModel> implements AutoCloseab
     private HiveModel hiveModel;
     protected String tableName;
 
-    protected static Connection connection;
+    protected Connection connection;
 
     private static final Logger logger = LoggerFactory.getLogger(HiveRepository.class);
 
     @SuppressWarnings("unchecked")
-    public HiveRepository() throws ClassNotFoundException, SQLException {
+    public HiveRepository() throws ClassNotFoundException {
         Class<M> clazz = (Class<M>)Class.forName(classTypeParameter());
         if(clazz.isAnnotationPresent(HiveModel.class)){
             this.hiveModel = clazz.getAnnotation(HiveModel.class);
-            String table = Properties.getProperty(Const.HIVE_TABLE);
-            String schema = Properties.getProperty(Const.HIVE_SCHEMA);
+            String table = Config.getProperty(Const.HIVE_TABLE);
+            String schema = Config.getProperty(Const.HIVE_SCHEMA);
             this.tableName = schema + "." + table;
 
-            if(connection == null)
-                connection = HiveConnectionProvider.getOrCreate("default", Connection.class);
+            connection = HiveConnectionProvider
+                    .getInstance()
+                    .getOrCreate(Config.getProperty(Const.HIVE_CLIENT_CONNECTION_NAME, "default"));
         } else{
             throw new RuntimeException("Type parameter must be annotated by HiveModel annotation");
         }
