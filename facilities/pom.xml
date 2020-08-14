@@ -13,7 +13,7 @@
         <hadoop.version>3.1.1</hadoop.version>
         <json.version>20180130</json.version>
         <hystrix.version>1.5.18</hystrix.version>
-        <hbase.version>2.0.2</hbase.version>
+        <hbase.version>2.3.0</hbase.version>
         <elastic.version>7.0.0</elastic.version>
         <prometheus.version>0.1.0</prometheus.version>
         <project.build.directory>/home/sondn/Projects/Data_Science/Data_collection/batch_layer/target/build</project.build.directory>
