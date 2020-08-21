@@ -5,6 +5,6 @@ import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface HiveModel {
-    String id();
-    String tableHivePhysics() default "";
+    String table() default "test";
+    String schema() default "default";
 }

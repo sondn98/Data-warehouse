@@ -15,7 +15,7 @@ public class ActionChecksum<M extends DataModel> extends ActionReadBroker<M> {
 
     public ActionChecksum(Config props, String KEY_TOPICS) {
         super(KEY_TOPICS);
-        this.esRepository = new ESRepository<M>("Checksum-topic-records-on-failure") {};
+        this.esRepository = new ESRepository<M>() {};
 
         this.props = props;
     }

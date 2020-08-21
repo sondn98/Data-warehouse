@@ -1,7 +1,6 @@
 package edu.hust.soict.bigdata.facilities.platform.hive;
 
 import java.math.BigDecimal;
-import java.sql.Blob;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -26,8 +25,6 @@ public class HiveUtils {
             ps.setBigDecimal(index, (BigDecimal) value);
         } else if (type.isAssignableFrom(Boolean.class)) {
             ps.setBoolean(index, (Boolean) value);
-        } else if (type.isAssignableFrom(Blob.class)) {
-            ps.setBlob(index, (Blob) value);
         } else if(type.isAssignableFrom(Timestamp.class)){
             ps.setTimestamp(index, (Timestamp) value);
         } else
@@ -53,8 +50,6 @@ public class HiveUtils {
             return rs.getLong(fieldName);
         } else if (clazz.isAssignableFrom(Boolean.class)) {
             return rs.getBoolean(fieldName);
-        } else if (clazz.isAssignableFrom(Blob.class)) {
-            return rs.getBlob(fieldName);
         } else if (clazz.isAssignableFrom(Timestamp.class)) {
             return rs.getTimestamp(fieldName);
         } else

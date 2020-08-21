@@ -21,6 +21,20 @@ public class Strings {
         else return parent + "/" + child;
     }
 
+    public static String concatFilePath(String... parts){
+        StringBuilder path = new StringBuilder();
+        path.append(parts[0].endsWith("/") ? parts[0].substring(0, parts[0].length() - 1) : parts[0]);
+        for(int i = 1 ; i < parts.length ; i ++){
+            if(parts[i].endsWith("/"))
+                parts[i] = parts[i].substring(0, parts[i].length() - 1);
+            if(parts[i].startsWith("/"))
+                path.append(parts[i]);
+            else path.append("/").append(parts[i]);
+        }
+
+        return path.toString();
+    }
+
     public static boolean isNullOrEmpty(String content) {
         return (content == null) || (content.isEmpty());
     }

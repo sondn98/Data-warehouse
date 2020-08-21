@@ -20,12 +20,14 @@ public class HiveConnectionProvider extends ObjectPool<Connection> {
 
     @Override
     protected Connection create() {
+        logger.info("Creating jdbc connection to Hive");
         String connectionStr = Config
                 .getProperty(Const.HIVE_CONNECTION_URL, "jdbc:hive2://localhost:10000/default");
         try {
             return new HiveDriver().connect(connectionStr, Config.getProps());
         } catch (SQLException e) {
-            throw new RuntimeException("Can not create connection to hive server", e);
+            logger.error("Error while creating jdbc connection to Hive", e);
+            return null;
         }
     }
 }

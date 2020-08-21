@@ -18,7 +18,6 @@ import java.util.List;
 
 public abstract class HiveRepository<M extends DataModel> implements AutoCloseable{
 
-    private HiveModel hiveModel;
     protected String tableName;
 
     protected Connection connection;
@@ -29,10 +28,8 @@ public abstract class HiveRepository<M extends DataModel> implements AutoCloseab
     public HiveRepository() throws ClassNotFoundException {
         Class<M> clazz = (Class<M>)Class.forName(classTypeParameter());
         if(clazz.isAnnotationPresent(HiveModel.class)){
-            this.hiveModel = clazz.getAnnotation(HiveModel.class);
-            String table = Config.getProperty(Const.HIVE_TABLE);
-            String schema = Config.getProperty(Const.HIVE_SCHEMA);
-            this.tableName = schema + "." + table;
+            HiveModel hiveModel = clazz.getAnnotation(HiveModel.class);
+            this.tableName = hiveModel.schema() + "." + hiveModel.table();
 
             connection = HiveConnectionProvider
                     .getInstance()
@@ -40,6 +37,13 @@ public abstract class HiveRepository<M extends DataModel> implements AutoCloseab
         } else{
             throw new RuntimeException("Type parameter must be annotated by HiveModel annotation");
         }
+    }
+
+    public boolean reconnect(){
+        connection = HiveConnectionProvider
+                .getInstance()
+                .getOrCreate(Config.getProperty(Const.HIVE_CLIENT_CONNECTION_NAME, "default"));
+        return connection != null;
     }
 
     public void add(M data) throws SQLException, IllegalAccessException {
@@ -86,8 +90,8 @@ public abstract class HiveRepository<M extends DataModel> implements AutoCloseab
         }
     }
 
-    public <T> M getOneById(T id) throws SQLException {
-        String query = "SELECT * FROM " + tableName + " WHERE " + hiveModel.id() + "=?";
+    public M getOneById(String id) throws SQLException {
+        String query = "SELECT * FROM " + tableName + " WHERE id=?";
         PreparedStatement ps = connection.prepareStatement(query);
         HiveUtils.setParam(ps, 1, id);
 
@@ -96,7 +100,7 @@ public abstract class HiveRepository<M extends DataModel> implements AutoCloseab
     }
 
     public <T> void delete(T id) throws SQLException {
-        String query = "DELETE FROM " + tableName + " WHERE " + hiveModel.id() + "=?";
+        String query = "DELETE FROM " + tableName + " WHERE id=?";
         PreparedStatement ps = connection.prepareStatement(query);
         HiveUtils.setParam(ps, 1, id);
 

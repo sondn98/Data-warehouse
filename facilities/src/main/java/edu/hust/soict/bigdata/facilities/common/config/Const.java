@@ -52,6 +52,7 @@ public class Const {
 
     // 7. ELASTICSEARCH
     public static final String ELASTIC_HOST = "ELASTIC_HOST";
+    public static final String ELASTIC_CLIENT_CONNECTION_NAME = "ELASTIC_CLIENT_CONNECTION_NAME";
     public static final String ELASTIC_CLUSTER_NAME = "ELASTIC_CLUSTER_NAME";
     public static final String ELASTIC_KAFKA_TOPIC_ON_FAILURE = "ELASTIC_KAFKA_TOPIC_ON_FAILURE";
 

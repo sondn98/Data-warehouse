@@ -17,10 +17,18 @@ public class ZKClient implements AutoCloseable{
     private ZooKeeper zookeeper;
     private static final Logger logger = LoggerFactory.getLogger(ZKClient.class);
 
-    public ZKClient() {
+    public ZKClient(String name) {
+        this.zookeeper = ZookeeperClientProvider
+                .getInstance()
+                .getOrCreate(name);
+    }
+
+    public boolean reconnect(){
         this.zookeeper = ZookeeperClientProvider
                 .getInstance()
                 .getOrCreate(Config.getProperty(Const.ZK_CLIENT_CONNECTION_NAME, "default"));
+
+        return zookeeper != null;
     }
 
     public void create(String path, String data) throws KeeperException, InterruptedException {
@@ -31,14 +39,31 @@ public class ZKClient implements AutoCloseable{
                 CreateMode.PERSISTENT);
     }
 
-    public synchronized String getDataAndDelete(String path) throws KeeperException, InterruptedException {
+    public boolean exists(String path) throws KeeperException, InterruptedException {
+        return zookeeper.exists(path, null) != null;
+    }
+
+    public void createEphemeral(String path, String data) throws KeeperException, InterruptedException {
+        zookeeper.create(
+                path,
+                data.getBytes(),
+                ZooDefs.Ids.OPEN_ACL_UNSAFE,
+                CreateMode.EPHEMERAL);
+    }
+
+    public String getData(String path, boolean delete) throws KeeperException, InterruptedException {
         String data = new String(zookeeper.getData(path, null, null), StandardCharsets.UTF_8);
-        zookeeper.delete(path, zookeeper.exists(path, true).getVersion());
+        if(delete)
+            zookeeper.delete(path, zookeeper.exists(path, true).getVersion());
 
         return data;
     }
 
-    public synchronized List<String> listChilds(String parentPath) throws KeeperException, InterruptedException {
+    public void setData(String path, String data) throws KeeperException, InterruptedException {
+        zookeeper.setData(path, data.getBytes(), -1);
+    }
+
+    public List<String> listChilds(String parentPath) throws KeeperException, InterruptedException {
         return zookeeper.getChildren(parentPath, null);
     }
 

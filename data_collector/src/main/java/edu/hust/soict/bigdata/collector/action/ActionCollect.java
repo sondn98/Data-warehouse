@@ -1,48 +1,53 @@
 package edu.hust.soict.bigdata.collector.action;
 
-import edu.hust.soict.bigdata.collector.action.executors.KafkaWriterExecutor;
-import edu.hust.soict.bigdata.collector.action.executors.WalWriterExecutor;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.hust.soict.bigdata.collector.common.CollectorConst;
+import edu.hust.soict.bigdata.collector.datacollection.CollectorJobAttributes;
 import edu.hust.soict.bigdata.facilities.common.config.Const;
 import edu.hust.soict.bigdata.facilities.common.config.Config;
+import edu.hust.soict.bigdata.facilities.common.exceptions.WalException;
 import edu.hust.soict.bigdata.facilities.common.wal.WalFactory;
 import edu.hust.soict.bigdata.facilities.common.wal.WalFile;
+import edu.hust.soict.bigdata.facilities.common.wal.WalWriter;
 import edu.hust.soict.bigdata.facilities.model.DataModel;
+import edu.hust.soict.bigdata.facilities.platform.kafka.KafkaBrokerWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.concurrent.*;
 
-public class ActionCollect<M extends DataModel>{
+public class ActionCollect implements Closeable {
 
-    private String currentWalFolder;
-    private Boolean activeWal;
-    private Boolean activeKafka;
-
+    private CollectorJobAttributes attributes;
     private WalFile wal;
 
     private static ExecutorService executorService;
     private static final Logger logger = LoggerFactory.getLogger(ActionCollect.class);
+    private static final ObjectMapper om = new ObjectMapper();
 
-    public ActionCollect(){
-        if(null == executorService)
-            executorService = Executors.newFixedThreadPool(
-                    Config.getIntProperty(CollectorConst.ACTION_WRITE_EXECUTOR_POOL_SIZE, 10));
+    public ActionCollect(CollectorJobAttributes attributes){
+        if(executorService == null || executorService.isTerminated())
+            executorService = Executors.newFixedThreadPool(attributes.NUM_COLLECTOR_THREADS);
 
-        this.activeKafka = Config.getBoolProperty(CollectorConst.ACTION_WRITE_KAFKA_ACTIVE, true);
-        this.activeWal = Config.getBoolProperty(CollectorConst.ACTION_WRITE_WAL_ACTIVE, false);
-        this.currentWalFolder = Config.getProperty(Const.LOCAL_FS_WAL_FOLDER);
-        this.wal = WalFactory.getShortestWalFile(currentWalFolder);
-        logger.info("Specified wal folder: " + this.currentWalFolder);
+        this.wal = WalFactory.getShortestWalFile(attributes.LOCAL_WAL_FOLDER);
     }
 
-    public void handle(M data) {
+    public <M extends DataModel> void handle(M data) {
         if(!wal.exists() || wal.isReachedLimit()) {
-            wal = WalFactory.getShortestWalFile(currentWalFolder);
+            wal = WalFactory.getShortestWalFile(attributes.LOCAL_WAL_FOLDER);
         }
 
-        if(activeWal){
-            Future<?> futWalRs =  executorService.submit(new WalWriterExecutor<>(wal, data));
+        if(attributes.ENABLE_BATCH){
+            Future<?> futWalRs =  executorService.submit(() -> {
+                try (WalWriter<M> writer = WalFactory.getWriter(wal)){
+                    writer.append(data);
+                } catch (IOException e) {
+                    logger.error("Error while write data to wal", new WalException(e));
+                }
+            });
             try {
                 futWalRs.get(Config.getIntProperty(CollectorConst.ACTION_WRITE_WAL_TIMEOUT, 3000), TimeUnit.MILLISECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
@@ -51,14 +56,35 @@ public class ActionCollect<M extends DataModel>{
             }
         }
 
-        if(activeKafka){
-            Future<?> futKafkaRs = executorService.submit(new KafkaWriterExecutor<>(data));
+        if(attributes.ENABLE_STREAMING){
+            Future<?> futKafkaRs = executorService.submit(() -> {
+                try (KafkaBrokerWriter writer = new KafkaBrokerWriter(attributes.KAFKA_TOPIC)){
+                    String message = om.writeValueAsString(data);
+                    String id = data.getId();
+                    writer.write(id, message);
+                    logger.info("Write data to kafka successfully: " + message);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            });
             try {
                 futKafkaRs.get(Config.getIntProperty(CollectorConst.ACTION_WRITE_KAFKA_TIMEOUT, 3000), TimeUnit.MILLISECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 logger.error("Error while writing messages to kafka broker", e);
                 futKafkaRs.cancel(true);
             }
+        }
+    }
+
+    @Override
+    public void close() {
+        executorService.shutdown();
+        try {
+            while(executorService.awaitTermination(1000, TimeUnit.MILLISECONDS)){
+                logger.info("Stopping action collect");
+            }
+        } catch (InterruptedException e) {
+            logger.error("Something went wrong", e);
         }
     }
 }

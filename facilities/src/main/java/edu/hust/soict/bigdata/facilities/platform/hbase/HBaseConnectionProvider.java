@@ -27,12 +27,14 @@ public class HBaseConnectionProvider extends ObjectPool<Connection> {
 
     @Override
     protected Connection create() {
+        logger.info("Creating connection to Hbase");
         try {
             Configuration conf = HBaseConfiguration.create();
             conf.addResource(new Path(Config.getProperty(Const.HBASE_CONFIG_FILE)));
             return ConnectionFactory.createConnection(conf);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            logger.error("Error while creating connection to hbase", e);
+            return null;
         }
     }
 }

@@ -36,11 +36,18 @@ public abstract class ESRepository<M extends DataModel> implements AutoCloseable
     private static final ObjectMapper om = new ObjectMapper();
     private static final Logger logger = LoggerFactory.getLogger(ESRepository.class);
 
-    public ESRepository(String clientName){
+    public ESRepository(){
         esClient = ElasticClientProvider
                 .getInstance()
-                .getOrCreate(clientName);
+                .getOrCreate(Config.getProperty(Const.ELASTIC_CLIENT_CONNECTION_NAME, "default"));
         this.writer = new KafkaBrokerWriter(Config.getProperty(Const.ELASTIC_KAFKA_TOPIC_ON_FAILURE));
+    }
+
+    public boolean reconnect() throws IOException {
+        esClient = ElasticClientProvider
+                .getInstance()
+                .getOrCreate(Config.getProperty(Const.ELASTIC_CLIENT_CONNECTION_NAME, "default"));
+        return esClient.ping(RequestOptions.DEFAULT);
     }
 
     public void add(M data, String index) throws JsonProcessingException {

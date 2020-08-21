@@ -43,7 +43,8 @@ public class BatchProcessingThread<M extends DataModel> implements Runnable{
 
     private void handle(){
         try{
-            ZKClient zkClient = new ZKClient();
+            //TODO
+            ZKClient zkClient = new ZKClient("");
             String zNodeParent = Config.getProperty(Const.ZK_INFO_HDFS_NEW_FILE_ZNODE);
             String data = zkClient.getDataAndDelete(zNodeParent);
             if(data == null)

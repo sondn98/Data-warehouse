@@ -15,7 +15,7 @@ class HandlerFactory {
     static <T extends DataModel> Handler<T> getHandler(WalInfo keeper) {
         switch (keeper.codec){
             case "csv":
-                return new CSVWalHandler<>(new HdfsFile(HdfsConnectionProvider.getFs(), keeper.filePath, keeper.codec));
+                return new CSVWalHandler<>(new HdfsFile(HdfsConnectionProvider.getInstance().getOrCreate(""), keeper.filePath, keeper.codec));
             case "object":
                 return new ObjectWalHandler<>(new LocalWalFile(keeper.filePath, keeper.codec, keeper.maxSize));
             case "json":

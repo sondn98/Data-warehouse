@@ -22,6 +22,7 @@ public class HdfsConnectionProvider extends ObjectPool<FileSystem> {
     @Override
     protected FileSystem create() {
         try {
+            logger.info("Creating connection to HDFS");
             return FileSystem.get(URI.create(
                     Config.getProperty(Const.HADOOP_FS_URI, "hdfs://localhost:9000/")), new Configuration());
         } catch (IOException e) {

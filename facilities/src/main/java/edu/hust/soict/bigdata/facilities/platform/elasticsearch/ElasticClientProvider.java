@@ -27,13 +27,14 @@ public class ElasticClientProvider extends ObjectPool<RestHighLevelClient> {
     @Override
     @SuppressWarnings("UnstableApiUsage")
     protected RestHighLevelClient create() {
+        logger.info("Creating elasticsearch RestHighLevelClient...");
+
         List<HostAndPort> hosts = new LinkedList<>();
         Collection<String> addresses = Config.getCollection(Const.ELASTIC_HOST);
         addresses.forEach(addr -> hosts.add(HostAndPort.fromString(addr)));
         HttpHost[] httpHosts = hosts.stream().map(m -> new HttpHost(m.getHost(), m.getPort())).toArray(HttpHost[]::new);
 
-        return new RestHighLevelClient(
-                RestClient.builder(httpHosts));
+        return new RestHighLevelClient(RestClient.builder(httpHosts));
     }
 
 }

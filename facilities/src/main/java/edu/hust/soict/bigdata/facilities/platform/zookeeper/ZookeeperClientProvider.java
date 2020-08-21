@@ -28,7 +28,8 @@ public class ZookeeperClientProvider extends ObjectPool<ZooKeeper> {
                 // ignored
             });
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            logger.error("Error while creating zookeeper connection", e);
+            return null;
         }
     }
 

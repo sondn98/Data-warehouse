@@ -19,7 +19,9 @@ public class ScrapingListener {
 
     private static final Logger logger = LoggerFactory.getLogger(ScrapingListener.class);
 
+    @SuppressWarnings("rawtypes")
     public static void start() throws Exception {
+        Config.addResource("data_collector/src/main/resources/collector.properties");
         System.setProperty("es.set.netty.runtime.available.processors", "false");
         String port = Config.getProperty(CollectorConst.LISTENER_SERVER_PORT, "6969");
         final String serverAddress = Config.getProperty(CollectorConst.LISTENER_SERVER_ADDRESS, "localhost");
@@ -28,8 +30,6 @@ public class ScrapingListener {
 
         Class[] apis = Reflects.getClass(Config.getCollection(CollectorConst.LISTENER_SERVER_API_CLASSES));
         ResourceConfig resourceConfig = new ResourceConfig(apis);
-
-        logger.info("Jersey on Jetty container started. Try out " + url);
 
         MetricsServer metricsServer = new MetricsServer();
         metricsServer.start();
@@ -45,7 +45,7 @@ public class ScrapingListener {
         }
 
         server.start();
-
+        logger.info("Jersey on Jetty container started. Try out " + url);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             logger.info("Stopping Metrics Server...");
@@ -58,6 +58,5 @@ public class ScrapingListener {
         logger.info(Config.toStr());
 
         start();
-        logger.info("Server is running ...");
     }
 }

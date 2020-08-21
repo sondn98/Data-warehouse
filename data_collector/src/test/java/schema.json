@@ -1,0 +1,42 @@
+{
+  "define-schema": {
+    "name": "ModelCustom",
+
+    "hive-model": {
+      "table": "test",
+      "schema": "default"
+    },
+
+    "schema": {
+      "c1": "iNt",
+      "c2": "string",
+      "c3": "TIMESTAMP"
+    }
+  },
+
+  "define-job-collect": {
+    "SCHEMA_NAME": "Schema",
+    "NUM_COLLECTOR_THREADS": 4,
+
+    "ENABLE_BATCH":true,
+    "LOCAL_WAL_FOLDER": "/usr/local/data/data-warehouse",
+    "COLLECT_INTERVAL": 2000,
+    "HDFS_CONNECTION_NAME": "Hdfs-Schema",
+    "HDFS_WAL_FOLDER": "/data-warehouse/",
+
+    "ENABLE_STREAMING": true,
+    "KAFKA_TOPIC": "topic",
+
+    "ZK_CONNECTION_NAME": "Zookeeper-Schema"
+  },
+
+  "collect-data": {
+    "name": "ModelCustom",
+
+    "data": {
+      "c1": 1,
+      "c2": "Lorem ipsum",
+      "c3": "2020-22-07 16:12:15"
+    }
+  }
+}
