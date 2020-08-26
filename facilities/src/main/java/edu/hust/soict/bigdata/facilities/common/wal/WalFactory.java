@@ -2,6 +2,7 @@ package edu.hust.soict.bigdata.facilities.common.wal;
 
 import edu.hust.soict.bigdata.facilities.common.config.Const;
 import edu.hust.soict.bigdata.facilities.common.config.Config;
+import edu.hust.soict.bigdata.facilities.common.util.Strings;
 import edu.hust.soict.bigdata.facilities.common.wal.impl.LocalWalFile;
 import edu.hust.soict.bigdata.facilities.common.wal.impl.csv.CSVWalReader;
 import edu.hust.soict.bigdata.facilities.common.wal.impl.csv.CSVWalWriter;
@@ -51,7 +52,7 @@ public class WalFactory {
 
     public static synchronized WalFile getShortestWalFile(String walFolder){
         String codec = Config.getProperty(Const.WAL_WRITER_CODEC);
-        Long maxSize = Config.getLongProperty(Const.WAL_MAX_SIZE, 1048576);
+        long maxSize = Config.getLongProperty(Const.WAL_MAX_SIZE, 1048576);
 
         File dir = new File(walFolder);
         if(!dir.isDirectory() || !dir.exists())
@@ -59,9 +60,9 @@ public class WalFactory {
 
         File[] files = dir.listFiles();
         String fileName = null;
-        Long size = Long.MAX_VALUE;
+        long size = Long.MAX_VALUE;
         for(File file : Objects.requireNonNull(files)){
-            Long length = file.length();
+            long length = file.length();
             if(length < maxSize && length < size){
                 fileName = file.getAbsolutePath();
                 size = length;
@@ -71,7 +72,7 @@ public class WalFactory {
         String walType = Config.getProperty(Const.WAL_FILE_TYPE);
         if (fileName == null){
             logger.info("No unfinished wal found. Tend to create new wal file");
-            fileName = walFolder + WalFile.newFileName();
+            fileName = Strings.concatFilePath(walFolder, WalFile.newFileName());
         }
 
         switch(walType){

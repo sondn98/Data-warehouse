@@ -53,10 +53,6 @@ public class SchemaGenerator {
 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         compiler.run(null, null, null, sourceFile.getPath());
-
-//        URLClassLoader classLoader = URLClassLoader.newInstance(new URL[] { root.toURI().toURL() });
-//        Class<?> cls = Class.forName(jsonSchema.getString(MODEL_NAME), true, classLoader);
-//        return ((T) cls.newInstance()).getClass();
     }
 
     @SuppressWarnings("unchecked")
@@ -73,6 +69,7 @@ public class SchemaGenerator {
         StringBuilder source = new StringBuilder();
 
         source
+                .append("import com.fasterxml.jackson.annotation.JsonFormat;").append("\n")
                 .append("import com.fasterxml.jackson.databind.ObjectMapper;").append("\n")
                 .append("import com.fasterxml.jackson.core.JsonProcessingException;").append("\n")
                 .append("import edu.hust.soict.bigdata.facilities.model.DataModel;").append("\n")
@@ -97,9 +94,14 @@ public class SchemaGenerator {
                 .append(String.format("public class %s extends DataModel {", jsonSchema.get(MODEL_NAME))).append("\n\n");
 
         JSONObject schemaModel = jsonSchema.getJSONObject(SCHEMA_MODEL_KEY);
-        for(String field : schemaModel.keySet())
+        for(String field : schemaModel.keySet()){
+            String dtype = DATA_TYPES.get(schemaModel.getString(field).toUpperCase());
+            if(dtype.equals("Timestamp"))
+                source
+                        .append("    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern=\"yyyy-MM-dd'T'HH:mm:ss.SSSZ\")").append("\n");
             source
-                    .append(String.format("    public %s %s;", DATA_TYPES.get(schemaModel.getString(field).toUpperCase()), field)).append("\n\n");
+                    .append(String.format("    public %s %s;", dtype, field)).append("\n\n");
+        }
 
         source
                 .append("    @Override").append("\n")

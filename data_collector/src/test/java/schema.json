@@ -30,13 +30,13 @@
     "ZK_CONNECTION_NAME": "Zookeeper-Schema"
   },
 
-  "collect-data": {
-    "name": "ModelCustom",
+    "collect-data": {
+      "name": "ModelCustom",
 
-    "data": {
-      "c1": 1,
-      "c2": "Lorem ipsum",
-      "c3": "2020-22-07 16:12:15"
-    }
+      "data": {
+        "c1": 1,
+        "c2": "Lorem ipsum",
+        "c3": "2020-22-07 16:12:15"
+      }
   }
 }

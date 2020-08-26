@@ -53,7 +53,7 @@ public abstract class ESRepository<M extends DataModel> implements AutoCloseable
     public void add(M data, String index) throws JsonProcessingException {
         IndexRequest request = new IndexRequest()
                 .index(index)
-                .id(data.getId())
+                .id(data.id)
                 .source(om.writeValueAsString(data), XContentType.JSON);
 
         esClient.indexAsync(request, RequestOptions.DEFAULT, new ActionListener<IndexResponse>() {
@@ -77,7 +77,7 @@ public abstract class ESRepository<M extends DataModel> implements AutoCloseable
                 String source = om.writeValueAsString(data);
                 request.add( new IndexRequest()
                         .index(index)
-                        .id(data.getId())
+                        .id(data.id)
                         .source(source, XContentType.JSON));
             } catch (JsonProcessingException e) {
                 logger.warn("Cannot parse json to index to es:\n" + data);
@@ -95,7 +95,7 @@ public abstract class ESRepository<M extends DataModel> implements AutoCloseable
                 List<String> responses = new LinkedList<>();
                 bulkItemResponses.iterator().forEachRemaining(m -> responses.add(m.getId()));
 
-                List<M> fails = bulkData.stream().filter(m -> responses.contains(m.getId())).collect(Collectors.toList());
+                List<M> fails = bulkData.stream().filter(m -> responses.contains(m.id)).collect(Collectors.toList());
                 for(M data : fails){
                     pushOnFailure(data);
                 }
@@ -138,7 +138,7 @@ public abstract class ESRepository<M extends DataModel> implements AutoCloseable
 
     private void pushOnFailure(M data){
         try {
-            writer.write(data.getId(), om.writeValueAsString(data));
+            writer.write(data.id, om.writeValueAsString(data));
         } catch (JsonProcessingException e1) {
             logger.error(e1.getMessage());
         }

@@ -46,9 +46,10 @@ public class CollectorJob extends LoopableLifeCircle implements Closeable {
 
         String node = Strings.concatFilePath(
                 Config.getProperty(CollectorConst.COLLECTION_JOB_ZK_PARENT), CollectorConst.HOST_NAME, attributes.SCHEMA_NAME);
-        if(!zkClient.exists(node))
+        if(!zkClient.exists(node)) {
             zkClient.create(node, om.writeValueAsString(attributes));
-        else
+            logger.info("Created job node: " + node);
+        } else
             zkClient.setData(node, om.writeValueAsString(attributes));
     }
 
@@ -58,6 +59,14 @@ public class CollectorJob extends LoopableLifeCircle implements Closeable {
 
     @Override
     public void run() {
+        try {
+            if(!zkClient.exists(Config.getProperty(Const.ZK_INFO_HDFS_NEW_FILE_ZNODE))){
+                zkClient.createRecursive(Config.getProperty(Const.ZK_INFO_HDFS_NEW_FILE_ZNODE));
+            }
+        } catch (KeeperException | InterruptedException e) {
+            logger.error("Error while creating znode for wal file moved to hdfs", e);
+        }
+
         File directory = new File(attributes.LOCAL_WAL_FOLDER);
         File[] files = directory.listFiles();
         if(files != null){
@@ -80,8 +89,10 @@ public class CollectorJob extends LoopableLifeCircle implements Closeable {
                                 hdfs.pushFile(file.getAbsolutePath(), hdfsFilePath);
 
                                 WalInfo keeper = wal.getInfo();
+                                //TODO: KeeperErrorCode = NoNode for /test/wal-963600270058688646.log
+
                                 zkClient.create(
-                                        Config.getProperty(Const.ZK_INFO_HDFS_NEW_FILE_ZNODE) + wal.name(),
+                                        Strings.concatFilePath(Config.getProperty(Const.ZK_INFO_HDFS_NEW_FILE_ZNODE), wal.name()),
                                         om.writeValueAsString(keeper));
                             }
                             wal.delete();
@@ -97,10 +108,6 @@ public class CollectorJob extends LoopableLifeCircle implements Closeable {
         } catch (InterruptedException e) {
             logger.error("Something went wrong", e);
         }
-    }
-
-    public void distroy(){
-
     }
 
     @Override

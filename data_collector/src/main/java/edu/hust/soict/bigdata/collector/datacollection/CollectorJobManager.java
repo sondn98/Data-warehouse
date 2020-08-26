@@ -32,12 +32,15 @@ public class CollectorJobManager extends ObjectPool<CollectorJob> implements Aut
             client.create(parent, "");
         else{
             List<String> childs = client.listChilds(parent);
+            boolean startup = Config.getBoolProperty(CollectorConst.COLLECTOR_JOB_START_UP_ON_MANAGER_INIT, false);
             for(String child : childs){
                 String node = Strings.concatFilePath(parent, child);
                 String data = client.getData(node, false);
                 CollectorJobAttributes attributes = om.readValue(data, CollectorJobAttributes.class);
                 Config.setRuntimeObj(CollectorConst.COLLECTOR_JOB_ATTR_OBJECT_KEY, attributes);
-                getOrCreate(attributes.SCHEMA_NAME);
+                CollectorJob job = getOrCreate(attributes.SCHEMA_NAME);
+                if(startup)
+                    job.start();
             }
         }
     }
@@ -83,8 +86,29 @@ public class CollectorJobManager extends ObjectPool<CollectorJob> implements Aut
     public synchronized void restart(String name, CollectorJobAttributes attributes) throws Exception {
         if(super.has(name)){
             this.stop(name, false);
+            if(attributes != null)
+                Config.setRuntimeObj(CollectorConst.COLLECTOR_JOB_ATTR_OBJECT_KEY, attributes);
+            super.remove(name);
             this.start(name, attributes);
         }
+    }
+
+    @Override
+    public synchronized void remove(String name) throws Exception {
+        if(super.has(name)){
+            if(getOrCreate(name).isRunning()){
+                logger.info("Job " + name + " is running. Stop it first before remove");
+            }
+
+            super.remove(name);
+        }
+    }
+
+    public boolean isRunning(String name){
+        if(super.has(name))
+            return getOrCreate(name).isRunning();
+
+        return false;
     }
 
     @Override

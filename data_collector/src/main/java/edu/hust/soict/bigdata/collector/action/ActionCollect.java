@@ -4,9 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.hust.soict.bigdata.collector.common.CollectorConst;
 import edu.hust.soict.bigdata.collector.datacollection.CollectorJobAttributes;
-import edu.hust.soict.bigdata.facilities.common.config.Const;
 import edu.hust.soict.bigdata.facilities.common.config.Config;
 import edu.hust.soict.bigdata.facilities.common.exceptions.WalException;
+import edu.hust.soict.bigdata.facilities.common.util.SequenceGenerator;
 import edu.hust.soict.bigdata.facilities.common.wal.WalFactory;
 import edu.hust.soict.bigdata.facilities.common.wal.WalFile;
 import edu.hust.soict.bigdata.facilities.common.wal.WalWriter;
@@ -23,27 +23,34 @@ public class ActionCollect implements Closeable {
 
     private CollectorJobAttributes attributes;
     private WalFile wal;
+    private KafkaBrokerWriter writer;
 
     private static ExecutorService executorService;
+
     private static final Logger logger = LoggerFactory.getLogger(ActionCollect.class);
     private static final ObjectMapper om = new ObjectMapper();
+    private static final SequenceGenerator sg = new SequenceGenerator();
 
     public ActionCollect(CollectorJobAttributes attributes){
+        this.attributes = attributes;
         if(executorService == null || executorService.isTerminated())
-            executorService = Executors.newFixedThreadPool(attributes.NUM_COLLECTOR_THREADS);
+            executorService = Executors.newFixedThreadPool(this.attributes.NUM_COLLECTOR_THREADS);
 
-        this.wal = WalFactory.getShortestWalFile(attributes.LOCAL_WAL_FOLDER);
+        this.wal = WalFactory.getShortestWalFile(this.attributes.LOCAL_WAL_FOLDER);
+        this.writer = new KafkaBrokerWriter(this.attributes.KAFKA_TOPIC);
     }
 
     public <M extends DataModel> void handle(M data) {
+        data.id = String.valueOf(sg.nextId());
         if(!wal.exists() || wal.isReachedLimit()) {
             wal = WalFactory.getShortestWalFile(attributes.LOCAL_WAL_FOLDER);
         }
 
         if(attributes.ENABLE_BATCH){
             Future<?> futWalRs =  executorService.submit(() -> {
-                try (WalWriter<M> writer = WalFactory.getWriter(wal)){
-                    writer.append(data);
+                try (WalWriter<M> walWriter = WalFactory.getWriter(wal)){
+                    walWriter.append(data);
+                    logger.info("Appended into wal file: " + wal.name());
                 } catch (IOException e) {
                     logger.error("Error while write data to wal", new WalException(e));
                 }
@@ -58,9 +65,9 @@ public class ActionCollect implements Closeable {
 
         if(attributes.ENABLE_STREAMING){
             Future<?> futKafkaRs = executorService.submit(() -> {
-                try (KafkaBrokerWriter writer = new KafkaBrokerWriter(attributes.KAFKA_TOPIC)){
+                try {
                     String message = om.writeValueAsString(data);
-                    String id = data.getId();
+                    String id = data.id;
                     writer.write(id, message);
                     logger.info("Write data to kafka successfully: " + message);
                 } catch (JsonProcessingException e) {
@@ -79,10 +86,10 @@ public class ActionCollect implements Closeable {
     @Override
     public void close() {
         executorService.shutdown();
+        writer.close();
         try {
-            while(executorService.awaitTermination(1000, TimeUnit.MILLISECONDS)){
-                logger.info("Stopping action collect");
-            }
+            logger.info("Stopping action collect...");
+            executorService.awaitTermination(10000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             logger.error("Something went wrong", e);
         }

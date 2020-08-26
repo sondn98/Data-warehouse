@@ -22,6 +22,7 @@ public class CollectorConst {
     public static final String ACTION_COLLECT_WAL_INTERVAL = "ACTION_COLLECT_WAL_INTERVAL";
 
     public static final String COLLECTOR_JOB_POOL_SIZE = "COLLECTOR_JOB_POOL_SIZE";
+    public static final String COLLECTOR_JOB_START_UP_ON_MANAGER_INIT = "COLLECTOR_JOB_START_UP_ON_MANAGER_INIT";
 
     // 2. RESTFUL
     public static final String LISTENER_SERVER_ADDRESS = "LISTENER_SERVER_ADDRESS";

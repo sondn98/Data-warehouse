@@ -1,7 +1,6 @@
 package edu.hust.soict.bigdata.facilities.platform.zookeeper;
 
-import edu.hust.soict.bigdata.facilities.common.config.Const;
-import edu.hust.soict.bigdata.facilities.common.config.Config;
+import edu.hust.soict.bigdata.facilities.common.util.Strings;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
@@ -23,13 +22,13 @@ public class ZKClient implements AutoCloseable{
                 .getOrCreate(name);
     }
 
-    public boolean reconnect(){
-        this.zookeeper = ZookeeperClientProvider
-                .getInstance()
-                .getOrCreate(Config.getProperty(Const.ZK_CLIENT_CONNECTION_NAME, "default"));
-
-        return zookeeper != null;
-    }
+//    public boolean reconnect(){
+//        this.zookeeper = ZookeeperClientProvider
+//                .getInstance()
+//                .getOrCreate(Config.getProperty(Const.ZK_CLIENT_CONNECTION_NAME, "default"));
+//
+//        return zookeeper != null;
+//    }
 
     public void create(String path, String data) throws KeeperException, InterruptedException {
         zookeeper.create(
@@ -37,10 +36,23 @@ public class ZKClient implements AutoCloseable{
                 data.getBytes(),
                 ZooDefs.Ids.OPEN_ACL_UNSAFE,
                 CreateMode.PERSISTENT);
+        logger.info("Created znode " + path + " with data \"" + data + "\"");
     }
 
     public boolean exists(String path) throws KeeperException, InterruptedException {
         return zookeeper.exists(path, null) != null;
+    }
+
+    public void createRecursive(String path) throws KeeperException, InterruptedException {
+        String[] nodes = path.split("/");
+        StringBuilder partialPath = new StringBuilder();
+        for(String node : nodes){
+            if(Strings.isNullOrEmpty(node))
+                continue;
+            partialPath.append("/").append(node);
+            if(!this.exists(partialPath.toString()))
+                this.create(partialPath.toString(), "");
+        }
     }
 
     public void createEphemeral(String path, String data) throws KeeperException, InterruptedException {

@@ -18,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 
+@Path("/collector")
 public class CollectorAPIs {
 
     private static final ObjectMapper om = new ObjectMapper();

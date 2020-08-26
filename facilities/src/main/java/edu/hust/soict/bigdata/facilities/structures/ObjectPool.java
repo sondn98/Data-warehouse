@@ -30,6 +30,11 @@ public abstract class ObjectPool<T extends AutoCloseable> {
         return null;
     }
 
+    public synchronized T recreate(String name) throws Exception {
+        this.remove(name);
+        return getOrCreate(name);
+    }
+
     public synchronized void put(String name, T obj){
         poolObjects.putIfAbsent(name, obj);
     }
